@@ -9,38 +9,165 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppWatchlistRouteImport } from './routes/_app.watchlist'
+import { Route as AppSettingsRouteImport } from './routes/_app.settings'
+import { Route as AppScannerRouteImport } from './routes/_app.scanner'
+import { Route as AppPortfolioRouteImport } from './routes/_app.portfolio'
+import { Route as AppMarketRouteImport } from './routes/_app.market'
+import { Route as AppExplorerRouteImport } from './routes/_app.explorer'
+import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppAlertsRouteImport } from './routes/_app.alerts'
+import { Route as AppStockTickerRouteImport } from './routes/_app.stock.$ticker'
 
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppWatchlistRoute = AppWatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppScannerRoute = AppScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPortfolioRoute = AppPortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMarketRoute = AppMarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppExplorerRoute = AppExplorerRouteImport.update({
+  id: '/explorer',
+  path: '/explorer',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAlertsRoute = AppAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStockTickerRoute = AppStockTickerRouteImport.update({
+  id: '/stock/$ticker',
+  path: '/stock/$ticker',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AppAlertsRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/explorer': typeof AppExplorerRoute
+  '/market': typeof AppMarketRoute
+  '/portfolio': typeof AppPortfolioRoute
+  '/scanner': typeof AppScannerRoute
+  '/settings': typeof AppSettingsRoute
+  '/watchlist': typeof AppWatchlistRoute
+  '/stock/$ticker': typeof AppStockTickerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AppAlertsRoute
+  '/dashboard': typeof AppDashboardRoute
+  '/explorer': typeof AppExplorerRoute
+  '/market': typeof AppMarketRoute
+  '/portfolio': typeof AppPortfolioRoute
+  '/scanner': typeof AppScannerRoute
+  '/settings': typeof AppSettingsRoute
+  '/watchlist': typeof AppWatchlistRoute
+  '/stock/$ticker': typeof AppStockTickerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_app/alerts': typeof AppAlertsRoute
+  '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/explorer': typeof AppExplorerRoute
+  '/_app/market': typeof AppMarketRoute
+  '/_app/portfolio': typeof AppPortfolioRoute
+  '/_app/scanner': typeof AppScannerRoute
+  '/_app/settings': typeof AppSettingsRoute
+  '/_app/watchlist': typeof AppWatchlistRoute
+  '/_app/stock/$ticker': typeof AppStockTickerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/alerts'
+    | '/dashboard'
+    | '/explorer'
+    | '/market'
+    | '/portfolio'
+    | '/scanner'
+    | '/settings'
+    | '/watchlist'
+    | '/stock/$ticker'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/alerts'
+    | '/dashboard'
+    | '/explorer'
+    | '/market'
+    | '/portfolio'
+    | '/scanner'
+    | '/settings'
+    | '/watchlist'
+    | '/stock/$ticker'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/_app/alerts'
+    | '/_app/dashboard'
+    | '/_app/explorer'
+    | '/_app/market'
+    | '/_app/portfolio'
+    | '/_app/scanner'
+    | '/_app/settings'
+    | '/_app/watchlist'
+    | '/_app/stock/$ticker'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +175,102 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/watchlist': {
+      id: '/_app/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof AppWatchlistRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/scanner': {
+      id: '/_app/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof AppScannerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/portfolio': {
+      id: '/_app/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof AppPortfolioRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/market': {
+      id: '/_app/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof AppMarketRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/explorer': {
+      id: '/_app/explorer'
+      path: '/explorer'
+      fullPath: '/explorer'
+      preLoaderRoute: typeof AppExplorerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/alerts': {
+      id: '/_app/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AppAlertsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/stock/$ticker': {
+      id: '/_app/stock/$ticker'
+      path: '/stock/$ticker'
+      fullPath: '/stock/$ticker'
+      preLoaderRoute: typeof AppStockTickerRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppAlertsRoute: typeof AppAlertsRoute
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppExplorerRoute: typeof AppExplorerRoute
+  AppMarketRoute: typeof AppMarketRoute
+  AppPortfolioRoute: typeof AppPortfolioRoute
+  AppScannerRoute: typeof AppScannerRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppWatchlistRoute: typeof AppWatchlistRoute
+  AppStockTickerRoute: typeof AppStockTickerRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppAlertsRoute: AppAlertsRoute,
+  AppDashboardRoute: AppDashboardRoute,
+  AppExplorerRoute: AppExplorerRoute,
+  AppMarketRoute: AppMarketRoute,
+  AppPortfolioRoute: AppPortfolioRoute,
+  AppScannerRoute: AppScannerRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppWatchlistRoute: AppWatchlistRoute,
+  AppStockTickerRoute: AppStockTickerRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
