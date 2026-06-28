@@ -126,7 +126,7 @@ function Dashboard() {
           <ul className="space-y-3">
             {breakouts.map((s) => (
               <li key={s.ticker} className="flex items-center gap-4">
-                <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/[0.04] font-mono text-[11px]">{s.ticker}</div>
+                <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-white/[0.04] font-mono text-[10px] leading-none">{s.ticker.length > 5 ? s.ticker.slice(0, 4) : s.ticker}</div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm">{s.company}</div>
                   <div className="text-xs text-muted-foreground">{s.sector}</div>
