@@ -108,9 +108,9 @@ function Scanner() {
           />
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[1100px] text-sm">
               <thead className="sticky top-0 bg-card/80 backdrop-blur">
-                <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+                <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground [&>th]:px-3 [&>th]:whitespace-nowrap">
                   <th className="py-3 font-medium">Ticker</th>
                   <th className="font-medium">Company</th>
                   <th className="font-medium text-right">CMP</th>
@@ -125,7 +125,7 @@ function Scanner() {
               </thead>
               <tbody>
                 {rows.map((s) => (
-                  <tr key={s.ticker} className="group border-t border-border transition-colors hover:bg-white/[0.025]">
+                  <tr key={s.ticker} className="group border-t border-border transition-colors hover:bg-white/[0.025] [&>td]:px-3 [&>td]:whitespace-nowrap">
                     <td className="py-3.5 font-mono text-xs">
                       <Link to="/stock/$ticker" params={{ ticker: s.ticker }} className="text-foreground hover:underline underline-offset-4">
                         {s.ticker}
