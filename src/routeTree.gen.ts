@@ -19,6 +19,7 @@ import { Route as AppMarketRouteImport } from './routes/_app.market'
 import { Route as AppExplorerRouteImport } from './routes/_app.explorer'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppAlertsRouteImport } from './routes/_app.alerts'
+import { Route as AppStockTickerRouteImport } from './routes/_app.stock.$ticker'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -69,6 +70,11 @@ const AppAlertsRoute = AppAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => AppRoute,
 } as any)
+const AppStockTickerRoute = AppStockTickerRouteImport.update({
+  id: '/stock/$ticker',
+  path: '/stock/$ticker',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/scanner': typeof AppScannerRoute
   '/settings': typeof AppSettingsRoute
   '/watchlist': typeof AppWatchlistRoute
+  '/stock/$ticker': typeof AppStockTickerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/scanner': typeof AppScannerRoute
   '/settings': typeof AppSettingsRoute
   '/watchlist': typeof AppWatchlistRoute
+  '/stock/$ticker': typeof AppStockTickerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/_app/scanner': typeof AppScannerRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/watchlist': typeof AppWatchlistRoute
+  '/_app/stock/$ticker': typeof AppStockTickerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/scanner'
     | '/settings'
     | '/watchlist'
+    | '/stock/$ticker'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/scanner'
     | '/settings'
     | '/watchlist'
+    | '/stock/$ticker'
   id:
     | '__root__'
     | '/'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/_app/scanner'
     | '/_app/settings'
     | '/_app/watchlist'
+    | '/_app/stock/$ticker'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -219,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAlertsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/stock/$ticker': {
+      id: '/_app/stock/$ticker'
+      path: '/stock/$ticker'
+      fullPath: '/stock/$ticker'
+      preLoaderRoute: typeof AppStockTickerRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -231,6 +250,7 @@ interface AppRouteChildren {
   AppScannerRoute: typeof AppScannerRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppWatchlistRoute: typeof AppWatchlistRoute
+  AppStockTickerRoute: typeof AppStockTickerRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -242,6 +262,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppScannerRoute: AppScannerRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppWatchlistRoute: AppWatchlistRoute,
+  AppStockTickerRoute: AppStockTickerRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
