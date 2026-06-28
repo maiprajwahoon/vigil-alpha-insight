@@ -60,7 +60,7 @@ function Dashboard() {
           <ul className="-mx-2 divide-y divide-border">
             {ALERTS.map((a) => (
               <li key={a.id} className="flex items-start gap-3 px-2 py-3 transition-colors hover:bg-white/[0.02] rounded-lg">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/[0.05] text-xs font-mono">{a.ticker}</div>
+                <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-white/[0.05] text-[10px] font-mono leading-none">{a.ticker.length > 5 ? a.ticker.slice(0, 4) : a.ticker}</div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm">{a.type}</span>
