@@ -1,39 +1,6 @@
-// Mock data for LynchMark — Indian stocks
-export type Status =
-  | "Strong Buy"
-  | "VCP Ready"
-  | "Near Pivot"
-  | "Base Building"
-  | "Breakout"
-  | "Extended"
-  | "Avoid";
-
-export interface Stock {
-  ticker: string;
-  company: string;
-  sector: string;
-  industry: string;
-  cmp: number;
-  change: number;
-  changePct: number;
-  marketCap: number; // in crores
-  growthQuality: number;
-  businessQuality: number;
-  valuation: number;
-  technicalStrength: number;
-  breakoutReadiness: number;
-  investmentQuality: number;
-  status: Status;
-  pe: number;
-  peg: number;
-  roe: number;
-  roce: number;
-  revGrowth: number;
-  epsGrowth: number;
-  debtEquity: number;
-  opMargin: number;
-  netMargin: number;
-}
+// Mock data for LynchMark — Indian stocks (fallback when VITE_USE_MOCK_DATA=true)
+export type { Status, Stock } from "@/lib/types/stock";
+import type { Stock } from "@/lib/types/stock";
 
 const mk = (s: Partial<Stock> & Pick<Stock, "ticker" | "company" | "sector" | "cmp">): Stock => ({
   industry: s.sector!,
