@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppWatchlistRouteImport } from './routes/_app.watchlist'
 import { Route as AppScannerRouteImport } from './routes/_app.scanner'
 import { Route as AppMarketRouteImport } from './routes/_app.market'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppWatchlistRoute = AppWatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppScannerRoute = AppScannerRouteImport.update({
   id: '/scanner',
@@ -45,12 +51,14 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/market': typeof AppMarketRoute
   '/scanner': typeof AppScannerRoute
+  '/watchlist': typeof AppWatchlistRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AppDashboardRoute
   '/market': typeof AppMarketRoute
   '/scanner': typeof AppScannerRoute
+  '/watchlist': typeof AppWatchlistRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +67,13 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/market': typeof AppMarketRoute
   '/_app/scanner': typeof AppScannerRoute
+  '/_app/watchlist': typeof AppWatchlistRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/market' | '/scanner'
+  fullPaths: '/' | '/dashboard' | '/market' | '/scanner' | '/watchlist'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/market' | '/scanner'
+  to: '/' | '/dashboard' | '/market' | '/scanner' | '/watchlist'
   id:
     | '__root__'
     | '/'
@@ -72,6 +81,7 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/market'
     | '/_app/scanner'
+    | '/_app/watchlist'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +104,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/watchlist': {
+      id: '/_app/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof AppWatchlistRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/scanner': {
       id: '/_app/scanner'
@@ -123,12 +140,14 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppMarketRoute: typeof AppMarketRoute
   AppScannerRoute: typeof AppScannerRoute
+  AppWatchlistRoute: typeof AppWatchlistRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppMarketRoute: AppMarketRoute,
   AppScannerRoute: AppScannerRoute,
+  AppWatchlistRoute: AppWatchlistRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
