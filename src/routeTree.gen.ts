@@ -15,6 +15,7 @@ import { Route as AppWatchlistRouteImport } from './routes/_app.watchlist'
 import { Route as AppScannerRouteImport } from './routes/_app.scanner'
 import { Route as AppPortfolioRouteImport } from './routes/_app.portfolio'
 import { Route as AppMarketRouteImport } from './routes/_app.market'
+import { Route as AppExplorerRouteImport } from './routes/_app.explorer'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppAlertsRouteImport } from './routes/_app.alerts'
 
@@ -47,6 +48,11 @@ const AppMarketRoute = AppMarketRouteImport.update({
   path: '/market',
   getParentRoute: () => AppRoute,
 } as any)
+const AppExplorerRoute = AppExplorerRouteImport.update({
+  id: '/explorer',
+  path: '/explorer',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -62,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AppAlertsRoute
   '/dashboard': typeof AppDashboardRoute
+  '/explorer': typeof AppExplorerRoute
   '/market': typeof AppMarketRoute
   '/portfolio': typeof AppPortfolioRoute
   '/scanner': typeof AppScannerRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AppAlertsRoute
   '/dashboard': typeof AppDashboardRoute
+  '/explorer': typeof AppExplorerRoute
   '/market': typeof AppMarketRoute
   '/portfolio': typeof AppPortfolioRoute
   '/scanner': typeof AppScannerRoute
@@ -82,6 +90,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_app/alerts': typeof AppAlertsRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/explorer': typeof AppExplorerRoute
   '/_app/market': typeof AppMarketRoute
   '/_app/portfolio': typeof AppPortfolioRoute
   '/_app/scanner': typeof AppScannerRoute
@@ -93,6 +102,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/dashboard'
+    | '/explorer'
     | '/market'
     | '/portfolio'
     | '/scanner'
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/dashboard'
+    | '/explorer'
     | '/market'
     | '/portfolio'
     | '/scanner'
@@ -112,6 +123,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_app/alerts'
     | '/_app/dashboard'
+    | '/_app/explorer'
     | '/_app/market'
     | '/_app/portfolio'
     | '/_app/scanner'
@@ -167,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMarketRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/explorer': {
+      id: '/_app/explorer'
+      path: '/explorer'
+      fullPath: '/explorer'
+      preLoaderRoute: typeof AppExplorerRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -187,6 +206,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAlertsRoute: typeof AppAlertsRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppExplorerRoute: typeof AppExplorerRoute
   AppMarketRoute: typeof AppMarketRoute
   AppPortfolioRoute: typeof AppPortfolioRoute
   AppScannerRoute: typeof AppScannerRoute
@@ -196,6 +216,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAlertsRoute: AppAlertsRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppExplorerRoute: AppExplorerRoute,
   AppMarketRoute: AppMarketRoute,
   AppPortfolioRoute: AppPortfolioRoute,
   AppScannerRoute: AppScannerRoute,
