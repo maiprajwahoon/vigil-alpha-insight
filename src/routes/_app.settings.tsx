@@ -57,14 +57,6 @@ function Settings() {
           ))}
         </ul>
       </div>
-
-      <div className="glass-card p-6">
-        <SectionHeading title="API access" subtitle="Programmatic access — coming soon" />
-        <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          Generate API keys to connect LynchMark to your own tools.
-          <div className="mt-3"><button className="rounded-full bg-white px-4 py-1.5 text-xs text-background">Join waitlist</button></div>
-        </div>
-      </div>
     </div>
   );
 }
