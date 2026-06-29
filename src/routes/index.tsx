@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
 import { ArrowRight, ArrowDown, LineChart, ShieldCheck, Sparkles } from "lucide-react";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { motion } from "@/lib/motion-shim";
 import { CountUp } from "@/components/Primitives";
 
 export const Route = createFileRoute("/")({

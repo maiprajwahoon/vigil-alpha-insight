@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
 import { ArrowRight, ArrowUpRight, Loader2 } from "lucide-react";
 import { StatCard, SectionHeading, StatusChip, ScoreBar } from "@/components/Primitives";
 import { ALERTS } from "@/lib/mock-data";
+import { motion } from "@/lib/motion-shim";
 import { useMarketOverview, useScanResults } from "@/hooks/use-scanner";
 
 export const Route = createFileRoute("/_app/dashboard")({

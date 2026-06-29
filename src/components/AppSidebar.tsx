@@ -9,7 +9,7 @@ import {
   Compass,
   Settings,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "@/lib/motion-shim";
 
 const items = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },

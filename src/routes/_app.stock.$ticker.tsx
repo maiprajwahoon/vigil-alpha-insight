@@ -1,10 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { motion } from "motion/react";
 import { Bell, GitCompareArrows, Loader2, Share2, Star } from "lucide-react";
 import { SectionHeading, ScoreBar, StatusChip } from "@/components/Primitives";
 import { StockChart } from "@/components/StockChart";
 import { useStock, useStockChart } from "@/hooks/use-scanner";
+import { motion } from "@/lib/motion-shim";
 import type { StockDetail } from "@/lib/types/stock";
 import { isInWatchlist, toggleWatchlist } from "@/lib/watchlist";
 
