@@ -37,6 +37,15 @@ export interface Stock {
   priceAbove150EMA?: boolean;
   priceAbove200EMA?: boolean;
   vcpDetected?: boolean;
+  matchedConditions?: Array<{ timeframe: string; description: string }>;
+}
+
+export interface ScanCondition {
+  timeframe: string;
+  parameter1: string;
+  operator: string;
+  parameter2Type: "value" | "parameter";
+  parameter2Value: string | number;
 }
 
 export interface WeeklyBar {
@@ -65,7 +74,7 @@ export interface VCPAnalysis {
   emaAlignment: boolean;
   volumeDryUpRatio: number;
   contractionCount: number;
-  patternIntegrity: "high" | "medium" | "low";
+  patternIntegrity: "low" | "medium" | "high";
 }
 
 export interface StockDetail extends Stock {
@@ -96,6 +105,7 @@ export interface ScannerFilters {
   status?: Status[];
   query?: string;
   force?: boolean;
+  conditions?: ScanCondition[];
 }
 
 export interface ScanResult {

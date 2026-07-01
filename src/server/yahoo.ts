@@ -36,45 +36,68 @@ function num(value: unknown, fallback = 0): number {
   return fallback;
 }
 
-async function fetchWeeklyBars(yahooSymbol: string): Promise<WeeklyBar[]> {
-  const key = cacheKey("weekly", yahooSymbol);
-  return cacheGetOrSet(key, CACHE_TTL.weekly, async () => {
+export async function fetchHistoricalBars(yahooSymbol: string, interval: string, rangeYears = 3): Promise<WeeklyBar[]> {
+  const key = cacheKey("bars", interval, rangeYears, yahooSymbol);
+  const ttl = ["5m", "15m", "30m", "1h"].includes(interval)
+    ? 5 * 60 * 1000 // 5 mins
+    : 4 * 60 * 60 * 1000; // 4 hours
+
+  return cacheGetOrSet(key, ttl, async () => {
     const period1 = new Date();
-    period1.setFullYear(period1.getFullYear() - 4);
-
-    const history = await yahooFinance.historical(yahooSymbol, {
-      period1: period1.toISOString().slice(0, 10),
-      interval: "1wk",
-    });
-
-    if (!history?.length) {
-      const daily = await yahooFinance.historical(yahooSymbol, {
-        period1: period1.toISOString().slice(0, 10),
-        interval: "1d",
-      });
-      return resampleToWeekly(
-        daily.map((d) => ({
-          date: d.date,
-          open: d.open ?? 0,
-          high: d.high ?? 0,
-          low: d.low ?? 0,
-          close: d.close ?? 0,
-          volume: d.volume ?? 0,
-        })),
-      );
+    if (interval === "5m" || interval === "15m" || interval === "30m") {
+      period1.setDate(period1.getDate() - (rangeYears * 8)); // scale intraday range as well
+    } else if (interval === "1h") {
+      period1.setDate(period1.getDate() - (rangeYears * 25));
+    } else {
+      period1.setFullYear(period1.getFullYear() - rangeYears);
     }
 
-    return history
-      .map((h) => ({
-        date: h.date.toISOString().slice(0, 10),
-        open: h.open ?? 0,
-        high: h.high ?? 0,
-        low: h.low ?? 0,
-        close: h.close ?? 0,
-        volume: h.volume ?? 0,
-      }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+    try {
+      const res = await yahooFinance.chart(yahooSymbol, {
+        period1: period1.toISOString().slice(0, 10),
+        interval: interval as any,
+      });
+
+      const quotes = res.quotes || [];
+
+      return quotes
+        .map((h) => ({
+          date: h.date instanceof Date ? h.date.toISOString() : new Date(h.date).toISOString(),
+          open: h.open ?? 0,
+          high: h.high ?? 0,
+          low: h.low ?? 0,
+          close: h.close ?? 0,
+          volume: h.volume ?? 0,
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+    } catch (e) {
+      console.warn(`Failed to fetch history for ${yahooSymbol} at interval ${interval}:`, e);
+      return [];
+    }
   });
+}
+
+async function fetchWeeklyBars(yahooSymbol: string): Promise<WeeklyBar[]> {
+  const bars = await fetchHistoricalBars(yahooSymbol, "1wk");
+  if (bars.length > 0) {
+    // Strip ISO date to yyyy-mm-dd to be compatible with other weekly code
+    return bars.map(b => ({
+      ...b,
+      date: b.date.slice(0, 10)
+    }));
+  }
+  
+  const daily = await fetchHistoricalBars(yahooSymbol, "1d");
+  return resampleToWeekly(
+    daily.map((d) => ({
+      date: new Date(d.date),
+      open: d.open,
+      high: d.high,
+      low: d.low,
+      close: d.close,
+      volume: d.volume,
+    }))
+  );
 }
 
 async function fetchFundamentals(yahooSymbol: string) {
@@ -116,9 +139,10 @@ async function fetchFundamentals(yahooSymbol: string) {
 
       return {
         pe: num(sd?.trailingPE ?? ks?.trailingPE),
+        peg: num(ks?.pegRatio),
         roe: num(fd?.returnOnEquity) * 100,
-        roce: num(fd?.returnOnAssets) * 100 * 1.2,
-        debtEquity: num(fd?.debtToEquity),
+        roce: num(fd?.returnOnAssets) * 100 * 1.3,
+        debtEquity: num(fd?.debtToEquity) / 100,
         opMargin: num(fd?.operatingMargins) * 100,
         netMargin: num(fd?.profitMargins) * 100,
         revGrowth,
@@ -131,6 +155,7 @@ async function fetchFundamentals(yahooSymbol: string) {
     } catch {
       return {
         pe: 0,
+        peg: 99,
         roe: 0,
         roce: 0,
         debtEquity: 0,
@@ -150,14 +175,26 @@ async function fetchFundamentals(yahooSymbol: string) {
 async function fetchQuote(yahooSymbol: string) {
   const key = cacheKey("quote", yahooSymbol);
   return cacheGetOrSet(key, CACHE_TTL.quote, async () => {
-    const q = await yahooFinance.quote(yahooSymbol);
-    return {
-      price: num(q.regularMarketPrice),
-      change: num(q.regularMarketChange),
-      changePct: num(q.regularMarketChangePercent),
-      marketCap: croresFromMarketCap(num(q.marketCap)),
-      name: q.shortName ?? q.longName ?? "",
-    };
+    try {
+      const q = await yahooFinance.quote(yahooSymbol);
+      if (!q) throw new Error("No quote found");
+      return {
+        price: num(q.regularMarketPrice),
+        change: num(q.regularMarketChange),
+        changePct: num(q.regularMarketChangePercent),
+        marketCap: croresFromMarketCap(num(q.marketCap)),
+        name: q.shortName ?? q.longName ?? "",
+      };
+    } catch (e) {
+      console.warn(`Failed to fetch quote for ${yahooSymbol}:`, e);
+      return {
+        price: 0,
+        change: 0,
+        changePct: 0,
+        marketCap: 0,
+        name: "",
+      };
+    }
   });
 }
 
@@ -171,7 +208,7 @@ export async function analyzeTicker(entry: UniverseEntry): Promise<Stock | null>
       fetchWeeklyBars(yahooSymbol),
     ]);
 
-    if (!quote.price || weeklyBars.length < 10) return null;
+    if (!quote.price) return null;
 
     const garp = scoreGARP({
       pe: fundamentals.pe || quote.price / 10,
@@ -184,7 +221,33 @@ export async function analyzeTicker(entry: UniverseEntry): Promise<Stock | null>
       netMargin: fundamentals.netMargin,
     });
 
-    const vcp = analyzeVCP(weeklyBars, garp.garpPass);
+    let vcp = {
+      status: "Avoid" as const,
+      technicalStrength: 0,
+      breakoutReadiness: 0,
+      analysis: {
+        stages: [] as Array<{ name: string; pct: number; depth: string }>,
+        pivotPrice: quote.price,
+        distanceToPivotPct: 0,
+        breakoutProbability: 0,
+        priceAbove50EMA: false,
+        priceAbove150EMA: false,
+        priceAbove200EMA: false,
+        emaAlignment: false,
+        volumeDryUpRatio: 0,
+        contractionCount: 0,
+        patternIntegrity: "low" as const,
+      }
+    };
+
+    try {
+      if (weeklyBars.length >= 10) {
+        vcp = analyzeVCP(weeklyBars, garp.garpPass) as any;
+      }
+    } catch (e) {
+      console.warn("Failed to calculate VCP analysis:", e);
+    }
+
     const status = mergeStatus(garp.garpPass, vcp.status);
 
     const vcpDetected =
@@ -211,7 +274,7 @@ export async function analyzeTicker(entry: UniverseEntry): Promise<Stock | null>
       ),
       status,
       pe: fundamentals.pe,
-      peg: garp.peg,
+      peg: fundamentals.peg && fundamentals.peg > 0 && fundamentals.peg < 50 ? fundamentals.peg : garp.peg,
       roe: fundamentals.roe,
       roce: fundamentals.roce || fundamentals.roe,
       revGrowth: fundamentals.revGrowth,
@@ -231,8 +294,12 @@ export async function analyzeTicker(entry: UniverseEntry): Promise<Stock | null>
 }
 
 export async function getStockDetail(ticker: string): Promise<StockDetail | null> {
-  const entry = UNIVERSE.find((u) => u.ticker.toUpperCase() === ticker.toUpperCase());
-  if (!entry) return null;
+  const entry = UNIVERSE.find((u) => u.ticker.toUpperCase() === ticker.toUpperCase()) || {
+    ticker: ticker.toUpperCase(),
+    company: ticker.toUpperCase(),
+    sector: "Other",
+    industry: "Other",
+  };
 
   const yahooSymbol = toYahooSymbol(entry.ticker);
   const stock = await analyzeTicker(entry);
@@ -240,32 +307,66 @@ export async function getStockDetail(ticker: string): Promise<StockDetail | null
 
   const weeklyBars = await fetchWeeklyBars(yahooSymbol);
   const fundamentals = await fetchFundamentals(yahooSymbol);
-  const vcp = analyzeVCP(weeklyBars, stock.growthQuality >= 50);
+  
+  let vcpAnalysis = {
+    stages: [] as any[],
+    pivotPrice: stock.cmp,
+    distanceToPivotPct: 0,
+    breakoutProbability: 50,
+    priceAbove50EMA: false,
+    priceAbove150EMA: false,
+    priceAbove200EMA: false,
+    emaAlignment: false,
+    volumeDryUpRatio: 1.0,
+    contractionCount: 0,
+    patternIntegrity: "low" as const,
+  };
+
+  try {
+    if (weeklyBars && weeklyBars.length >= 10) {
+      const vcp = analyzeVCP(weeklyBars, stock.growthQuality >= 50);
+      vcpAnalysis = vcp.analysis;
+    }
+  } catch (e) {
+    console.warn("Failed to calculate VCP analysis in getStockDetail:", e);
+  }
 
   return {
     ...stock,
-    vcp: vcp.analysis,
+    vcp: vcpAnalysis,
     bookValue: fundamentals.bookValue,
     netProfit: fundamentals.netProfit,
   };
 }
 
-export async function getStockChart(ticker: string): Promise<ChartData | null> {
-  const entry = UNIVERSE.find((u) => u.ticker.toUpperCase() === ticker.toUpperCase());
-  if (!entry) return null;
+export async function getStockChart(ticker: string, interval = "1wk", rangeYears = 3): Promise<ChartData | null> {
+  const entry = UNIVERSE.find((u) => u.ticker.toUpperCase() === ticker.toUpperCase()) || {
+    ticker: ticker.toUpperCase(),
+    company: ticker.toUpperCase(),
+    sector: "Other",
+    industry: "Other",
+  };
 
-  const weeklyBars = await fetchWeeklyBars(toYahooSymbol(entry.ticker));
-  if (!weeklyBars.length) return null;
+  const bars = await fetchHistoricalBars(toYahooSymbol(entry.ticker), interval, rangeYears);
+  if (!bars.length) return null;
 
-  const closes = weeklyBars.map((b) => b.close);
-  const vcp = analyzeVCP(weeklyBars, true);
+  const closes = bars.map((b) => b.close);
+  
+  // Use a fallback pivot if we are on intraday or don't have enough weekly history
+  let pivotPrice = closes[closes.length - 1];
+  try {
+    const vcp = analyzeVCP(bars, true);
+    pivotPrice = vcp.analysis.pivotPrice;
+  } catch (e) {
+    // Ignore VCP calculation errors for non-standard charts
+  }
 
   return {
-    bars: weeklyBars,
+    bars,
     ema50: ema(closes, 50),
     ema150: ema(closes, 150),
     ema200: ema(closes, 200),
-    pivotPrice: vcp.analysis.pivotPrice,
+    pivotPrice,
   };
 }
 

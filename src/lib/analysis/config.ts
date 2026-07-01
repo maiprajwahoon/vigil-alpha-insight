@@ -15,10 +15,10 @@ export const GARP_THRESHOLDS = {
 } as const;
 
 export const CACHE_TTL = {
-  quote: 15 * 60 * 1000,
+  quote: 30 * 1000,
   fundamentals: 24 * 60 * 60 * 1000,
   weekly: 6 * 60 * 60 * 1000,
-  scan: 30 * 60 * 1000,
+  scan: 2 * 60 * 1000,
 } as const;
 
 export const SCAN_CONFIG = {

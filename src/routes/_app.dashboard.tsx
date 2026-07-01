@@ -4,6 +4,43 @@ import { StatCard, SectionHeading, StatusChip, ScoreBar } from "@/components/Pri
 import { ALERTS } from "@/lib/mock-data";
 import { motion } from "@/lib/motion-shim";
 import { useMarketOverview, useScanResults } from "@/hooks/use-scanner";
+import { useRealtimePrice, RealtimePriceCell } from "@/hooks/use-realtime-price";
+
+function RealtimeIndexStatCard({
+  label,
+  ticker,
+  baseValue,
+  baseChangePct,
+  hint,
+}: {
+  label: string;
+  ticker: string;
+  baseValue: number;
+  baseChangePct: number;
+  hint?: string;
+}) {
+  const { price, changePct, direction } = useRealtimePrice(ticker, baseValue, baseChangePct);
+  const flashClass =
+    direction === "up"
+      ? "animate-flash-up text-bull"
+      : direction === "down"
+        ? "animate-flash-down text-bear"
+        : "";
+
+  return (
+    <StatCard
+      label={label}
+      value={
+        <span className={flashClass}>
+          {price.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+        </span>
+      }
+      delta={changePct}
+      hint={hint}
+    />
+  );
+}
+
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — LynchMark" }] }),
@@ -33,12 +70,17 @@ function Dashboard() {
         <StatCard label="Market Health" value={strongCount > 10 ? "Strong" : "Mixed"} hint={`${stocks.length} stocks scanned`} />
         <StatCard label="Strong Opportunities" value={strongCount} hint="Investment quality ≥ 80" />
         <StatCard label="Weekly Breakouts" value={breakoutCount} hint="Confirmed pivot breaks" />
-        <StatCard
-          label="NIFTY 50"
-          value={market?.indices?.[0]?.value?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "—"}
-          delta={market?.indices?.[0]?.changePct}
-          hint="Live index"
-        />
+        {market?.indices?.[0]?.value ? (
+          <RealtimeIndexStatCard
+            label="NIFTY 50"
+            ticker="^NSEI"
+            baseValue={market.indices[0].value}
+            baseChangePct={market.indices[0].changePct}
+            hint="Live index"
+          />
+        ) : (
+          <StatCard label="NIFTY 50" value="—" hint="Live index" />
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -133,7 +175,9 @@ function Dashboard() {
                     </td>
                     <td className="text-foreground/90">{s.company}</td>
                     <td className="text-muted-foreground">{s.sector}</td>
-                    <td className="text-right font-mono">₹{s.cmp.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                    <td className="text-right font-mono">
+                      <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} />
+                    </td>
                     <td><ScoreBar value={s.investmentQuality} /></td>
                     <td><StatusChip status={s.status} /></td>
                   </tr>
@@ -159,9 +203,11 @@ function Dashboard() {
                   <div className="text-xs text-muted-foreground">{s.sector}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono text-sm">₹{s.cmp.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-                  <div className={`text-xs ${s.changePct >= 0 ? "text-bull" : "text-bear"}`}>
-                    {s.changePct >= 0 ? "+" : ""}{s.changePct.toFixed(2)}%
+                  <div className="font-mono text-sm">
+                    <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} />
+                  </div>
+                  <div className="text-xs">
+                    <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} showChangePct={true} />
                   </div>
                 </div>
               </li>

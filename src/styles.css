@@ -193,3 +193,22 @@
 .animate-line-sweep { animation: line-sweep 18s linear infinite; }
 .animate-pulse-dot { animation: pulse-dot 4s ease-in-out infinite; }
 .animate-thought   { animation: thought-fade 8s ease-in-out forwards; }
+
+@keyframes flash-green {
+  0% { color: var(--color-bull); }
+  100% { color: inherit; }
+}
+
+@keyframes flash-red {
+  0% { color: var(--color-bear); }
+  100% { color: inherit; }
+}
+
+@utility animate-flash-up {
+  animation: flash-green 0.6s ease-out;
+}
+
+@utility animate-flash-down {
+  animation: flash-red 0.6s ease-out;
+}
+

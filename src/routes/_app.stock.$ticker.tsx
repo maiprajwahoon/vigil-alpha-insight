@@ -1,14 +1,23 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
-import { Bell, GitCompareArrows, Loader2, Share2, Star } from "lucide-react";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { Bell, GitCompareArrows, Loader2, Share2, Star, CheckCircle2, Newspaper } from "lucide-react";
 import { SectionHeading, ScoreBar, StatusChip } from "@/components/Primitives";
 import { StockChart } from "@/components/StockChart";
-import { useStock, useStockChart } from "@/hooks/use-scanner";
+import { OverviewDashboard } from "@/components/OverviewDashboard";
+import { TechnicalDashboard } from "@/components/TechnicalDashboard";
+import { useStock, useStockChart, useStockNews } from "@/hooks/use-scanner";
+import { useRealtimePrice } from "@/hooks/use-realtime-price";
 import { motion } from "@/lib/motion-shim";
 import type { StockDetail } from "@/lib/types/stock";
 import { isInWatchlist, toggleWatchlist } from "@/lib/watchlist";
 
 export const Route = createFileRoute("/_app/stock/$ticker")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      tab: (search.tab as string) || "Overview",
+      timeframe: (search.timeframe as string) || "1d",
+    };
+  },
   head: ({ params }) => ({ meta: [{ title: `${params.ticker} — LynchMark` }] }),
   component: StockPage,
   notFoundComponent: () => (
@@ -19,14 +28,35 @@ export const Route = createFileRoute("/_app/stock/$ticker")({
   ),
 });
 
-const TABS = ["Overview", "Chart", "Fundamentals", "Technical", "Financials", "News"] as const;
+const TABS = ["Overview", "Chart", "Fundamentals", "Technical", "News"] as const;
 
 function StockPage() {
   const { ticker } = Route.useParams();
-  const { data: stock, isLoading, isError } = useStock(ticker);
-  const [tab, setTab] = useState<(typeof TABS)[number]>("Overview");
+  const { tab: activeTab, timeframe: activeTimeframe } = Route.useSearch();
+  const navigate = useNavigate();
+
+  const setTab = (newTab: string) => {
+    navigate({
+      search: (prev) => ({ ...prev, tab: newTab }),
+    });
+  };
+
+  const setTimeframe = (newTf: string) => {
+    navigate({
+      search: (prev) => ({ ...prev, timeframe: newTf }),
+    });
+  };
+
+  const { data: stock, isLoading, isError, refetch } = useStock(ticker);
   const [watchlisted, setWatchlisted] = useState(() => isInWatchlist(ticker));
-  const { data: chart } = useStockChart(ticker, tab === "Chart");
+  const [rangeYears, setRangeYears] = useState(3);
+
+  // Reset rangeYears to 3 when timeframe changes
+  useEffect(() => {
+    setRangeYears(3);
+  }, [activeTimeframe]);
+
+  const { data: chart } = useStockChart(ticker, activeTimeframe, rangeYears);
 
   if (isLoading) {
     return (
@@ -36,7 +66,42 @@ function StockPage() {
     );
   }
 
-  if (isError || !stock) throw notFound();
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-32 text-center">
+        <div className="text-sm font-semibold text-bear">Failed to load stock data</div>
+        <p className="text-xs text-muted-foreground max-w-xs">
+          The exchange connection timed out or is temporarily busy.
+        </p>
+        <button
+          onClick={() => refetch()}
+          className="mt-2 rounded-xl bg-card border border-border px-4 py-2 text-xs text-foreground hover:bg-white/5 transition"
+        >
+          Retry Connection
+        </button>
+      </div>
+    );
+  }
+
+  if (!stock) {
+    return (
+      <div className="grid place-items-center py-32 text-center">
+        <h2 className="font-display text-3xl">Ticker not found</h2>
+        <Link to="/scanner" className="mt-4 text-sm text-muted-foreground hover:text-foreground">Back to scanner</Link>
+      </div>
+    );
+  }
+
+  const { price: tickingPrice, changePct: tickingChangePct, direction } = useRealtimePrice(stock.ticker, stock.cmp, stock.changePct);
+  const previousClose = stock.cmp / (1 + (stock.changePct || 0) / 100);
+  const tickingChange = tickingPrice - previousClose;
+
+  const flashClass =
+    direction === "up"
+      ? "animate-flash-up text-bull"
+      : direction === "down"
+        ? "animate-flash-down text-bear"
+        : "";
 
   const handleWatchlist = () => {
     toggleWatchlist(ticker);
@@ -59,9 +124,12 @@ function StockPage() {
               </div>
               <h1 className="font-display mt-1 truncate text-3xl md:text-4xl">{stock.company}</h1>
               <div className="mt-3 flex flex-wrap items-end gap-4">
-                <span className="font-display text-3xl">₹{stock.cmp.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                <span className={`text-sm ${stock.changePct >= 0 ? "text-bull" : "text-bear"}`}>
-                  {stock.changePct >= 0 ? "+" : ""}{stock.change.toFixed(2)} ({stock.changePct.toFixed(2)}%) today
+                <span className={`font-display text-3xl ${flashClass}`}>
+                  ₹{tickingPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                <span className={`text-sm ${tickingChangePct >= 0 ? "text-bull" : "text-bear"}`}>
+                  {tickingChangePct >= 0 ? "+" : ""}
+                  {tickingChange.toFixed(2)} ({tickingChangePct.toFixed(2)}%) today
                 </span>
                 <span className="text-xs text-muted-foreground">Mkt cap ₹{(stock.marketCap / 1000).toFixed(1)}k Cr</span>
                 <StatusChip status={stock.status} />
@@ -83,10 +151,10 @@ function StockPage() {
               key={t}
               onClick={() => setTab(t)}
               className={`relative whitespace-nowrap rounded-lg px-4 py-2 text-sm transition ${
-                tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                activeTab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {tab === t && (
+              {activeTab === t && (
                 <motion.span layoutId="stock-tab" className="absolute inset-0 rounded-lg bg-white/[0.06]" />
               )}
               <span className="relative">{t}</span>
@@ -95,12 +163,20 @@ function StockPage() {
         </div>
       </div>
 
-      {tab === "Overview" && <Overview stock={stock} />}
-      {tab === "Chart" && <ChartPanel chart={chart} ticker={ticker} />}
-      {tab === "Fundamentals" && <Fundamentals stock={stock} />}
-      {tab === "Technical" && <VCPTimeline stock={stock} />}
-      {tab === "Financials" && <Fundamentals stock={stock} />}
-      {tab === "News" && <News />}
+      {activeTab === "Overview" && <OverviewDashboard stock={stock} chart={chart} />}
+      {activeTab === "Chart" && (
+        <ChartPanel
+          chart={chart}
+          ticker={ticker}
+          onTimeframeChange={setTimeframe}
+          currentTimeframe={activeTimeframe}
+          rangeYears={rangeYears}
+          onRangeYearsChange={setRangeYears}
+        />
+      )}
+      {activeTab === "Fundamentals" && <Fundamentals stock={stock} />}
+      {activeTab === "Technical" && <TechnicalDashboard stock={stock} chart={chart} />}
+      {activeTab === "News" && <NewsPanel ticker={ticker} />}
     </div>
   );
 }
@@ -129,154 +205,46 @@ function HeaderBtn({
   );
 }
 
-function Overview({ stock }: { stock: StockDetail }) {
-  const cards: Array<{ label: string; value: number }> = [
-    { label: "Growth Quality", value: stock.growthQuality },
-    { label: "Business Quality", value: stock.businessQuality },
-    { label: "Valuation", value: stock.valuation },
-    { label: "Technical Strength", value: stock.technicalStrength },
-    { label: "Breakout Readiness", value: stock.breakoutReadiness },
-    { label: "Investment Quality", value: stock.investmentQuality },
-  ];
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {cards.map((c) => (
-          <div key={c.label} className="glass-card p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">{c.label}</span>
-              <span className="font-mono text-sm">{c.value}/100</span>
-            </div>
-            <div className="mt-3 font-display text-3xl">{rating(c.value)}</div>
-            <div className="mt-3"><ScoreBar value={c.value} /></div>
-          </div>
-        ))}
-      </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="glass-card p-6 lg:col-span-2">
-          <SectionHeading title="LynchMark summary" subtitle="A narrative read of the setup" />
-          <p className="text-sm leading-relaxed text-foreground/90">
-            <span className="font-medium">{stock.company}</span> exhibits{" "}
-            {stock.businessQuality >= 70 ? "durable economics" : "mixed fundamentals"} with a {stock.roe.toFixed(0)}% return on equity,
-            and revenue compounding at {stock.revGrowth.toFixed(0)}% over recent years. The chart shows a{" "}
-            {stock.vcp.contractionCount >= 3 ? "tightening weekly base with diminishing volume" : "developing base structure"} —{" "}
-            {stock.breakoutReadiness > 80 ? "within striking distance" : "approaching"} its pivot at ₹{stock.vcp.pivotPrice.toFixed(0)}.
-            Pattern integrity: {stock.vcp.patternIntegrity}.
-          </p>
-        </div>
-        <div className="glass-card p-6">
-          <SectionHeading title="Risk meter" />
-          <RiskMeter value={100 - stock.valuation} />
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function rating(v: number) {
-  if (v >= 90) return "Exceptional";
-  if (v >= 80) return "Excellent";
-  if (v >= 70) return "Strong";
-  if (v >= 60) return "Solid";
-  return "Mixed";
-}
-
-function RiskMeter({ value }: { value: number }) {
-  return (
-    <div className="mt-4 grid place-items-center">
-      <svg viewBox="0 0 200 120" className="h-44 w-full">
-        <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="14" strokeLinecap="round" />
-        <motion.path
-          d="M20 100 A80 80 0 0 1 180 100"
-          fill="none"
-          stroke="white"
-          strokeWidth="14"
-          strokeLinecap="round"
-          strokeDasharray="251"
-          initial={{ strokeDashoffset: 251 }}
-          animate={{ strokeDashoffset: 251 - (value / 100) * 251 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-        />
-      </svg>
-      <div className="-mt-12 text-center">
-        <div className="font-display text-3xl">{value < 30 ? "Low" : value < 60 ? "Moderate" : "Elevated"}</div>
-        <div className="text-xs text-muted-foreground">Risk profile</div>
-      </div>
-    </div>
-  );
-}
-
-function ChartPanel({ chart, ticker }: { chart: ReturnType<typeof useStockChart>["data"]; ticker: string }) {
+function ChartPanel({
+  chart,
+  ticker,
+  onTimeframeChange,
+  currentTimeframe,
+  rangeYears,
+  onRangeYearsChange,
+}: {
+  chart: ReturnType<typeof useStockChart>["data"];
+  ticker: string;
+  onTimeframeChange: (tf: string) => void;
+  currentTimeframe: string;
+  rangeYears: number;
+  onRangeYearsChange: (years: number) => void;
+}) {
   if (!chart) {
     return (
       <div className="glass-card flex items-center justify-center gap-2 p-24 text-sm text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin" /> Loading weekly chart for {ticker}…
+        <Loader2 className="h-5 w-5 animate-spin" /> Loading chart for {ticker}…
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="glass-card p-6">
-        <div className="flex items-center gap-3 text-xs mb-4">
-          {[
-            { name: "50 EMA", c: "rgba(255,255,255,0.85)" },
-            { name: "150 EMA", c: "rgba(255,255,255,0.55)" },
-            { name: "200 EMA", c: "rgba(255,255,255,0.3)" },
-          ].map((l) => (
-            <span key={l.name} className="inline-flex items-center gap-1.5 text-muted-foreground">
-              <span className="h-0.5 w-4 rounded-full" style={{ background: l.c }} />
-              {l.name}
-            </span>
-          ))}
-        </div>
-        <StockChart data={chart} />
-      </div>
+      <StockChart
+        data={chart}
+        ticker={ticker}
+        onTimeframeChange={onTimeframeChange}
+        currentTimeframe={currentTimeframe}
+        rangeYears={rangeYears}
+        onRangeYearsChange={onRangeYearsChange}
+      />
     </div>
   );
 }
 
-function VCPTimeline({ stock }: { stock: StockDetail }) {
-  const { vcp } = stock;
-  const stages = vcp.stages.length
-    ? vcp.stages
-    : [{ name: "Base forming", pct: 40, depth: "—" }];
 
-  return (
-    <div className="space-y-6">
-      <div className="glass-card p-6 md:p-8">
-        <SectionHeading title="VCP analysis" subtitle="Weekly volatility contraction structure" />
-        <div className="relative grid gap-6 md:grid-cols-6">
-          {stages.map((s, i) => (
-            <div key={`${s.name}-${i}`} className="relative">
-              {i < stages.length - 1 && (
-                <div className="absolute left-full top-4 hidden h-px w-full -translate-x-2 bg-border md:block" />
-              )}
-              <div className="grid h-8 w-8 place-items-center rounded-full border border-border bg-white/[0.04] text-xs font-mono">{i + 1}</div>
-              <div className="mt-3 text-sm">{s.name}</div>
-              <div className="text-xs text-muted-foreground">{s.depth}</div>
-              <div className="mt-3"><ScoreBar value={s.pct} /></div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8 rounded-2xl border border-border bg-white/[0.015] p-5">
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">Breakout probability</div>
-              <div className="font-display mt-1 text-4xl">{vcp.breakoutProbability}%</div>
-            </div>
-            <div className="text-xs text-muted-foreground max-w-xs text-right">
-              Pattern integrity: {vcp.patternIntegrity} · Distance to pivot: {Math.abs(vcp.distanceToPivotPct).toFixed(1)}% ·
-              Contractions: {vcp.contractionCount}
-            </div>
-          </div>
-          <div className="mt-4"><ScoreBar value={vcp.breakoutProbability} /></div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function Fundamentals({ stock }: { stock: StockDetail }) {
   const fmt = (v: number, suffix = "") => (Number.isFinite(v) && v !== 0 ? `${v.toFixed(suffix === "%" ? 0 : 1)}${suffix}` : "—");
@@ -309,11 +277,114 @@ function Fundamentals({ stock }: { stock: StockDetail }) {
   );
 }
 
-function News() {
+interface NewsItem {
+  uuid: string;
+  title: string;
+  publisher: string;
+  link: string;
+  providerPublishTime: string;
+  thumbnail?: {
+    resolutions: Array<{ url: string; width: number; height: number }>;
+  };
+}
+
+function NewsPanel({ ticker }: { ticker: string }) {
+  const { data: news, isLoading, isError } = useStockNews(ticker);
+
+  if (isLoading) {
+    return (
+      <div className="glass-card flex items-center justify-center gap-2 p-16 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin text-[#2563eb]" />
+        <span>Loading latest news for {ticker}…</span>
+      </div>
+    );
+  }
+
+  if (isError || !news || news.length === 0) {
+    return (
+      <div className="glass-card p-12 text-center text-sm text-muted-foreground">
+        No recent news stories found for {ticker}.
+      </div>
+    );
+  }
+
+  // Helper mapping common publishers to domains for clean favicons
+  const getPublisherDomain = (publisher: string): string => {
+    const p = publisher.toLowerCase().trim();
+    if (p.includes("moneycontrol")) return "moneycontrol.com";
+    if (p.includes("economic times") || p.includes("economictimes")) return "economictimes.indiatimes.com";
+    if (p.includes("livemint") || p.includes("mint")) return "livemint.com";
+    if (p.includes("business standard") || p.includes("business-standard")) return "business-standard.com";
+    if (p.includes("ndtv") || p.includes("ndtv profit")) return "ndtv.com";
+    if (p.includes("cnbctv18") || p.includes("cnbc")) return "cnbctv18.com";
+    if (p.includes("financial express") || p.includes("financialexpress")) return "financialexpress.com";
+    if (p.includes("reuters")) return "reuters.com";
+    if (p.includes("bloomberg")) return "bloomberg.com";
+    if (p.includes("zeebiz") || p.includes("zee business")) return "zeebiz.com";
+    if (p.includes("upstox")) return "upstox.com";
+    if (p.includes("groww")) return "groww.in";
+    if (p.includes("indiatimes")) return "indiatimes.com";
+    if (p.includes("times of india") || p.includes("toi")) return "timesofindia.indiatimes.com";
+    if (p.includes("hindu")) return "thehindu.com";
+    if (p.includes("express")) return "indianexpress.com";
+    
+    const clean = p.replace(/[^a-z0-9]/g, "");
+    return clean ? `${clean}.com` : "google.com";
+  };
+
   return (
-    <div className="glass-card p-6">
-      <SectionHeading title="Latest news" subtitle="News feed requires a dedicated provider — coming soon" />
-      <p className="text-sm text-muted-foreground">Fundamental and technical analysis above is live from Yahoo Finance.</p>
+    <div className="space-y-6">
+      <SectionHeading title="Latest news" subtitle={`Recent market stories mentioning ${ticker}`} />
+      <div className="grid gap-4 md:grid-cols-2">
+        {news.map((item: NewsItem) => {
+          const domain = getPublisherDomain(item.publisher);
+          const logoUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+          const pubDate = new Date(item.providerPublishTime).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          return (
+            <a
+              key={item.uuid}
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-start gap-4 rounded-2xl border border-border bg-[#181818] p-4 transition-all hover:bg-white/[0.03] hover:border-white/10"
+            >
+              {/* Publisher logo container */}
+              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white/[0.04] flex items-center justify-center border border-white/5 shadow-inner">
+                <img
+                  src={logoUrl}
+                  alt={item.publisher}
+                  className="h-5 w-5 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.parentElement?.querySelector(".fallback-icon");
+                    if (fallback) fallback.classList.remove("hidden");
+                  }}
+                  referrerPolicy="no-referrer"
+                />
+                <Newspaper className="fallback-icon h-4 w-4 text-muted-foreground hidden" />
+              </div>
+
+              {/* News details */}
+              <div className="space-y-1.5 min-w-0 flex-1">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  <span className="text-[#2563eb]">{item.publisher}</span>
+                  <span>·</span>
+                  <span>{pubDate}</span>
+                </div>
+                <h3 className="font-sans line-clamp-2 text-sm text-foreground/90 font-medium group-hover:text-[#2563eb] transition-colors leading-snug">
+                  {item.title}
+                </h3>
+              </div>
+            </a>
+          );
+        })}
+      </div>
     </div>
   );
 }

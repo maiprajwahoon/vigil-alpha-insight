@@ -4,6 +4,7 @@ import { Bell, Plus, Star } from "lucide-react";
 import { SectionHeading, ScoreBar } from "@/components/Primitives";
 import { useScanResults } from "@/hooks/use-scanner";
 import { getWatchlist, setWatchlist } from "@/lib/watchlist";
+import { RealtimePriceCell } from "@/hooks/use-realtime-price";
 
 export const Route = createFileRoute("/_app/watchlist")({
   head: () => ({ meta: [{ title: "Watchlist — LynchMark" }] }),
@@ -74,9 +75,11 @@ function Watchlist() {
                       <Link to="/stock/$ticker" params={{ ticker: s.ticker }}>{s.ticker}</Link>
                     </td>
                     <td>{s.company}</td>
-                    <td className="text-right font-mono">₹{s.cmp.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                    <td className={`text-right text-xs ${s.changePct >= 0 ? "text-bull" : "text-bear"}`}>
-                      {s.changePct >= 0 ? "+" : ""}{s.changePct.toFixed(2)}%
+                    <td className="text-right font-mono">
+                      <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} />
+                    </td>
+                    <td className="text-right text-xs">
+                      <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} showChangePct={true} />
                     </td>
                     <td><ScoreBar value={s.investmentQuality} /></td>
                     <td><ScoreBar value={s.breakoutReadiness} /></td>
