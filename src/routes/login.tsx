@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Mail, Lock, Eye, EyeOff, Loader2, KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Loader2, KeyRound, CheckCircle2, AlertCircle, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/use-auth";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
@@ -16,6 +16,7 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const [isSignUp, setIsSignUp] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -49,6 +50,11 @@ function LoginPage() {
         const { error, data } = await supabase.auth.signUp({
           email: email.trim(),
           password: password.trim(),
+          options: {
+            data: {
+              full_name: fullName.trim(),
+            },
+          },
         });
         
         if (error) throw error;
@@ -132,6 +138,25 @@ function LoginPage() {
 
         {/* Input Forms */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isSignUp && (
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground/80 select-none">Full Name</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3.5 flex items-center text-muted-foreground/60 select-none">
+                  <User className="h-4 w-4" strokeWidth={1.6} />
+                </span>
+                <input
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Anand Mehta"
+                  className="w-full pl-10.5 pr-4 py-2.5 rounded-xl border border-white/5 bg-white/[0.015] text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-blue-500/50 focus:bg-white/[0.03] transition-all"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground/80 select-none">Email Address</label>
             <div className="relative">
