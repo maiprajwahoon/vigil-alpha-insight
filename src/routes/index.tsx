@@ -33,12 +33,7 @@ function Landing() {
           <a className="hover:text-foreground transition" href="#stats">Coverage</a>
           <a className="hover:text-foreground transition" href="#approach">Approach</a>
         </div>
-        <Link
-          to="/dashboard"
-          className="rounded-full border border-border bg-white/[0.03] px-4 py-2 text-sm transition hover:bg-white/[0.08]"
-        >
-          Open app
-        </Link>
+
       </nav>
 
       {/* Hero */}
