@@ -116,9 +116,6 @@ export function TopBar() {
         >
           <Search className="h-4 w-4 text-muted-foreground group-hover:text-foreground/80 transition" strokeWidth={1.6} />
           <span>Search Indian stocks (e.g. RELIANCE, TCS)…</span>
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border bg-background/60 px-1.5 py-0.5 font-mono text-[10px]">
-            ⌘K
-          </kbd>
         </button>
 
         <div className="flex items-center gap-1.5 ml-auto">

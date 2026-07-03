@@ -23,8 +23,28 @@ function Explorer() {
       <SectionHeading title="High-conviction setups" subtitle="GARP fundamentals with weekly VCP confirmation" />
 
       {isLoading ? (
-        <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" /> Loading universe…
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-pulse">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="glass-card p-5 space-y-5">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="h-3.5 w-16 bg-white/[0.05] rounded" />
+                  <div className="h-3 w-32 bg-white/[0.03] rounded" />
+                </div>
+                <div className="h-5 w-16 bg-white/[0.04] rounded-full" />
+              </div>
+              <div className="flex items-end justify-between pt-2">
+                <div className="space-y-1.5">
+                  <div className="h-5.5 w-20 bg-white/[0.05] rounded" />
+                  <div className="h-3 w-12 bg-white/[0.03] rounded" />
+                </div>
+                <div className="space-y-1.5 flex flex-col items-end">
+                  <div className="h-3 w-12 bg-white/[0.03] rounded" />
+                  <div className="h-3.5 w-8 bg-white/[0.05] rounded" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

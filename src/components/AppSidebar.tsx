@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -7,8 +8,12 @@ import {
   Bell,
   Compass,
   Settings,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { motion } from "@/lib/motion-shim";
+import { useMarketOverview } from "@/hooks/use-scanner";
+import { useRealtimePrice } from "@/hooks/use-realtime-price";
 
 const items = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -22,15 +27,39 @@ const items = [
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { data: market } = useMarketOverview();
+  const [collapsed, setCollapsed] = useState(false);
+
+  const niftyData = market?.indices?.find((i) => i.name === "NIFTY 50") || { value: 24300, changePct: 0.5 };
+  const { price, changePct, direction } = useRealtimePrice("^NSEI", niftyData.value, niftyData.changePct);
+  
+  const flashClass =
+    direction === "up"
+      ? "animate-flash-up text-bull"
+      : direction === "down"
+        ? "animate-flash-down text-bear"
+        : "";
 
   return (
-    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-border bg-sidebar/60 backdrop-blur-xl">
-      <Link to="/" className="flex items-center gap-2.5 px-6 pt-6 pb-8">
-        <div className="grid h-8 w-8 place-items-center rounded-lg bg-white text-background">
-          <span className="font-display text-lg leading-none">L</span>
-        </div>
-        <div className="font-display text-xl tracking-tight">LynchMark</div>
-      </Link>
+    <aside
+      className={`hidden md:flex shrink-0 flex-col border-r border-border bg-[#181818]/60 backdrop-blur-xl transition-all duration-300 ${
+        collapsed ? "w-16" : "w-60"
+      }`}
+    >
+      <div className="flex items-center justify-between px-4 pt-6 pb-8">
+        <Link to="/" className="flex items-center gap-2.5 min-w-0">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-white text-background shrink-0">
+            <span className="font-display text-lg leading-none">L</span>
+          </div>
+          {!collapsed && <div className="font-display text-xl tracking-tight text-foreground/95 truncate">LynchMark</div>}
+        </Link>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-1.5 rounded-lg border border-white/5 hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors shrink-0"
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+      </div>
 
       <nav className="flex-1 px-3 space-y-0.5">
         {items.map((it) => {
@@ -40,9 +69,10 @@ export function AppSidebar() {
             <Link
               key={it.to}
               to={it.to}
+              title={collapsed ? it.label : undefined}
               className={`relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
                 active
-                  ? "text-foreground"
+                  ? "text-foreground font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
               }`}
             >
@@ -54,20 +84,32 @@ export function AppSidebar() {
                 />
               )}
               <Icon className="relative h-4 w-4 shrink-0" strokeWidth={1.6} />
-              <span className="relative">{it.label}</span>
+              {!collapsed && <span className="relative truncate">{it.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="m-4 rounded-2xl border border-border bg-card/50 p-4">
-        <div className="text-xs text-muted-foreground">Market</div>
-        <div className="mt-1 flex items-baseline justify-between">
-          <div className="font-display text-2xl">NIFTY</div>
-          <div className="text-bull text-sm">+0.62%</div>
+      {/* Market widget at bottom */}
+      {!collapsed ? (
+        <div className="m-4 rounded-2xl border border-border bg-card/50 p-4 transition-all duration-300">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-bold">Market</div>
+          <div className="mt-1 flex items-baseline justify-between select-none">
+            <div className="font-display text-lg">NIFTY 50</div>
+            <div className={`text-xs font-bold ${changePct >= 0 ? "text-bull" : "text-bear"}`}>
+              {changePct >= 0 ? "+" : ""}{changePct.toFixed(2)}%
+            </div>
+          </div>
+          <div className={`mt-1 text-xs font-mono font-bold ${flashClass}`}>
+            {price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
         </div>
-        <div className="mt-1 text-xs text-muted-foreground">24,812.40</div>
-      </div>
+      ) : (
+        <div className="m-2 py-3 rounded-xl border border-border bg-card/50 flex flex-col items-center gap-1.5 transition-all duration-300">
+          <span className={`h-2 w-2 rounded-full ${changePct >= 0 ? "bg-bull" : "bg-bear"} animate-pulse-subtle`} />
+          <span className="text-[9px] font-bold font-mono tracking-tight">{changePct >= 0 ? "+" : ""}{changePct.toFixed(1)}%</span>
+        </div>
+      )}
     </aside>
   );
 }

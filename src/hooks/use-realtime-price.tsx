@@ -13,6 +13,77 @@ function getPreviousClose(basePrice: number, baseChangePct: number): number {
   return basePrice / (1 + (baseChangePct || 0) / 100);
 }
 
+/**
+ * Checks if the stock market is currently open for a given ticker.
+ * Indian stock market (NSE/BSE) hours: Mon-Fri, 9:15 AM - 3:30 PM IST (Asia/Kolkata).
+ * US stock market (NYSE/NASDAQ) hours: Mon-Fri, 9:30 AM - 4:00 PM EST/EDT (America/New_York).
+ */
+export function isMarketOpen(ticker: string): boolean {
+  const upperTicker = ticker.toUpperCase();
+  
+  // Determine market timezone and trading hours
+  let timeZone = "Asia/Kolkata";
+  let startHour = 9;
+  let startMinute = 15;
+  let endHour = 15;
+  let endMinute = 30;
+
+  // Identify US indices or US tickers
+  const isUS =
+    upperTicker.endsWith(".US") ||
+    ["^GSPC", "^DJI", "^IXIC", "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"].some((t) =>
+      upperTicker.startsWith(t)
+    );
+
+  if (isUS) {
+    timeZone = "America/New_York";
+    startHour = 9;
+    startMinute = 30;
+    endHour = 16;
+    endMinute = 0;
+  }
+
+  try {
+    // Format current time into parts for the target timezone
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hour12: false,
+      weekday: "short",
+      hour: "numeric",
+      minute: "numeric",
+    });
+    
+    const parts = formatter.formatToParts(new Date());
+    const partMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+
+    const weekday = partMap.weekday; // "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+    if (weekday === "Sat" || weekday === "Sun") {
+      return false;
+    }
+
+    const hour = parseInt(partMap.hour, 10);
+    const minute = parseInt(partMap.minute, 10);
+    const totalMinutes = hour * 60 + minute;
+
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = endHour * 60 + endMinute;
+
+    return totalMinutes >= startMinutes && totalMinutes < endMinutes;
+  } catch (e) {
+    // Fallback: Default to local time checks if DateTimeFormat is unsupported or fails
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sunday, 6 = Saturday
+    if (day === 0 || day === 6) return false;
+
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const totalMinutes = hour * 60 + minute;
+
+    // Default to NSE trading hours (9:15 AM - 3:30 PM) in local time
+    return totalMinutes >= 9 * 60 + 15 && totalMinutes < 15 * 60 + 30;
+  }
+}
+
 // Tick all active prices
 let intervalId: any = null;
 function startGlobalTicker() {
@@ -20,6 +91,11 @@ function startGlobalTicker() {
 
   intervalId = setInterval(() => {
     globalPrices.forEach((state, key) => {
+      // Only simulate updates if the market is currently open for this ticker
+      if (!isMarketOpen(key)) {
+        return;
+      }
+
       // 50% chance of price update every second for each stock to simulate trade activity
       if (Math.random() > 0.5) {
         // Tickers like indices (^NSEI) fluctuate in similar ranges
@@ -97,8 +173,11 @@ export function useRealtimePrice(
     if (!basePrice) return;
 
     const current = globalPrices.get(upperKey);
-    // If not initialized, or if the API basePrice changes (e.g. fresh backend fetch), update it
-    if (!current || Math.abs(current.price - basePrice) > basePrice * 0.002) {
+    const open = isMarketOpen(upperKey);
+    
+    // Reset/force sync to the correct API base price if market is closed,
+    // or if the item is not initialized, or if the basePrice has significantly changed
+    if (!open || !current || Math.abs(current.price - basePrice) > basePrice * 0.002) {
       const newState: PriceState = {
         price: basePrice,
         changePct: baseChangePct,
