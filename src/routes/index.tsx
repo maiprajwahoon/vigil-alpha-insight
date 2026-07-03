@@ -43,9 +43,6 @@ function Landing() {
 
       {/* Hero */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 pt-24 pb-32 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-
 
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
