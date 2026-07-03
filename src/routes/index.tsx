@@ -45,13 +45,7 @@ function Landing() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 pt-24 pb-32 text-center">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-white/[0.03] px-3 py-1 text-xs text-muted-foreground"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-bull animate-pulse" />
-          GARP × Weekly VCP — built for patient capital
-        </motion.div>
+
 
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
