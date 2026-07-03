@@ -85,9 +85,11 @@ function OnboardingPage() {
       >
         {/* Header */}
         <div className="text-center space-y-1.5 select-none">
-          <div className="mx-auto grid h-10 w-10 place-items-center rounded-xl bg-white text-background mb-4 shadow-lg shadow-black/30">
-            <span className="font-display text-2xl font-bold leading-none">L</span>
-          </div>
+          <img
+            src="/logo.jpg"
+            alt="LynchMark"
+            className="mx-auto h-14 w-14 rounded-2xl object-cover mb-4 shadow-lg shadow-black/40 select-none"
+          />
           <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground/95">
             Complete Your Profile
           </h1>

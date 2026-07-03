@@ -48,9 +48,11 @@ export function AppSidebar() {
     >
       <div className="flex items-center justify-between px-4 pt-6 pb-8">
         <Link to="/" className="flex items-center gap-2.5 min-w-0">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-white text-background shrink-0">
-            <span className="font-display text-lg leading-none">L</span>
-          </div>
+          <img
+            src="/logo.jpg"
+            alt="LynchMark"
+            className="h-8 w-8 rounded-lg object-cover shrink-0 select-none"
+          />
           {!collapsed && <div className="font-display text-xl tracking-tight text-foreground/95 truncate">LynchMark</div>}
         </Link>
         <button
