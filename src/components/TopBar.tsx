@@ -1,16 +1,32 @@
-import { Bell, Search, SunMoon, User, Loader2, TrendingUp, History, Star, ArrowRight, X } from "lucide-react";
+import { Bell, Search, SunMoon, User, Loader2, TrendingUp, History, Star, ArrowRight, X, LogOut } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useSearchStocks } from "@/hooks/use-scanner";
 import { getWatchlist } from "@/lib/watchlist";
+import { useAuth } from "@/hooks/use-auth";
 
 export function TopBar() {
+  const { user, signOut } = useAuth();
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [isOpen, setIsOpen] = useState(false);
   const [rawQuery, setRawQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentlyViewed, setRecentlyViewed] = useState<string[]>([]);
   const [watchlist, setWatchlist] = useState<string[]>([]);
+
+  // Click outside to close user dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowUserDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const modalInputRef = useRef<HTMLInputElement>(null);
@@ -126,8 +142,31 @@ export function TopBar() {
             <Bell className="h-4 w-4" strokeWidth={1.6} />
             <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-bull" />
           </IconBtn>
-          <div className="ml-2 grid h-9 w-9 place-items-center rounded-full bg-card border border-border">
-            <User className="h-4 w-4 text-muted-foreground" strokeWidth={1.6} />
+          <div ref={dropdownRef} className="relative ml-2">
+            <button
+              onClick={() => setShowUserDropdown(!showUserDropdown)}
+              className="grid h-9 w-9 place-items-center rounded-full bg-card border border-border hover:bg-white/[0.04] transition cursor-pointer"
+            >
+              <User className="h-4 w-4 text-muted-foreground" strokeWidth={1.6} />
+            </button>
+
+            {showUserDropdown && (
+              <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/10 bg-[#161616] p-1.5 shadow-xl z-50">
+                <div className="px-2.5 py-2 text-[11px] font-medium text-foreground/80 truncate">
+                  {user?.email || "Investor Account"}
+                </div>
+                <div className="my-1 border-t border-white/5" />
+                <button
+                  onClick={async () => {
+                    setShowUserDropdown(false);
+                    await signOut();
+                  }}
+                  className="w-full inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left text-[11px] font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition cursor-pointer"
+                >
+                  <LogOut className="h-3.5 w-3.5" /> Sign Out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
