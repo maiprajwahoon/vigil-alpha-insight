@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowDown, LineChart, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowDown, LineChart, ShieldCheck, Sparkles, Mail } from "lucide-react";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { motion } from "@/lib/motion-shim";
 import { CountUp } from "@/components/Primitives";
@@ -34,6 +34,7 @@ function Landing() {
           <a className="hover:text-foreground transition" href="#philosophy">Philosophy</a>
           <a className="hover:text-foreground transition" href="#stats">Coverage</a>
           <a className="hover:text-foreground transition" href="#approach">Approach</a>
+          <a className="hover:text-foreground transition" href="#about">About</a>
         </div>
 
       </nav>
@@ -152,6 +153,58 @@ function Landing() {
             Enter the terminal
             <ArrowRight className="h-4 w-4" strokeWidth={1.8} />
           </Link>
+        </div>
+      </section>
+
+      {/* About */}
+      <section id="about" className="relative z-10 mx-auto max-w-6xl px-6 pb-32">
+        <div className="glass-card p-10 md:p-14 space-y-8">
+          {/* Header */}
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">About</p>
+            <h2 className="font-display text-3xl md:text-4xl">LynchMark <span className="text-muted-foreground text-2xl">(LM)</span></h2>
+          </div>
+
+          {/* Body */}
+          <div className="space-y-5 max-w-3xl">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              LynchMark (LM) is a stock analysis platform designed to help investors better understand
+              the Indian stock market using{" "}
+              <span className="text-foreground font-medium">GARP (Growth at a Reasonable Price)</span>{" "}
+              investing principles and{" "}
+              <span className="text-foreground font-medium">Mark Minervini's VCP strategy</span>.
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Built by <span className="text-foreground font-medium">Prajwal</span>, a 3rd Year Engineering
+              Student, LM aims to simplify stock research by combining fundamental and technical analysis
+              into one intuitive platform.
+            </p>
+
+            {/* Disclaimer */}
+            <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground/60 mb-2">Disclaimer</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                LM is only a <span className="text-foreground">research and learning tool</span> and does not
+                provide financial or investment advice. Please invest at your own risk and always do your own
+                research before making any investment decisions.
+              </p>
+            </div>
+
+            {/* Contact */}
+            <div className="pt-2">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground/60 mb-3">Contact</p>
+              <p className="text-sm text-muted-foreground mb-3">
+                For suggestions, feedback, or bug reports, feel free to reach out:
+              </p>
+              <a
+                href="mailto:gdoom298@gmail.com"
+                className="inline-flex items-center gap-2.5 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-2.5 text-sm text-foreground hover:bg-white/[0.07] transition group"
+              >
+                <Mail className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition" strokeWidth={1.6} />
+                gdoom298@gmail.com
+              </a>
+            </div>
+          </div>
         </div>
 
         <footer className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-xs text-muted-foreground md:flex-row">
