@@ -23,9 +23,11 @@ function Landing() {
 
       <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-white text-background">
-            <span className="font-display text-lg leading-none">L</span>
-          </div>
+          <img
+            src="/logo.jpg"
+            alt="LynchMark"
+            className="h-8 w-8 rounded-lg object-cover shrink-0 select-none"
+          />
           <span className="font-display text-xl">LynchMark</span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
