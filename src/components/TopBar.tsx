@@ -135,9 +135,7 @@ export function TopBar() {
         </button>
 
         <div className="flex items-center gap-1.5 ml-auto">
-          <IconBtn aria-label="Theme">
-            <SunMoon className="h-4 w-4" strokeWidth={1.6} />
-          </IconBtn>
+
           <IconBtn aria-label="Notifications">
             <Bell className="h-4 w-4" strokeWidth={1.6} />
             <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-bull" />
