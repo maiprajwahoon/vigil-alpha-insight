@@ -514,6 +514,7 @@ function calculateDetailedScores(stock: Stock) {
 
 function Scanner() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sort, setSort] = useState<keyof Stock>("investmentQuality");
   const [query, setQuery] = useState("");
