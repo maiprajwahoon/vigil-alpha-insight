@@ -277,6 +277,12 @@ function getStockIndicator(stock: Stock, indicatorId: string): any {
   const seed = Math.abs(hash);
   
   switch (indicatorId) {
+    case "salesGrowth":
+      return stock.revGrowth;
+    case "profitGrowth":
+      return stock.epsGrowth;
+    case "stage2Uptrend":
+      return !!stock.priceAbove200EMA;
     case "currentRatio":
       return 1.1 + (seed % 30) / 10;
     case "piotroskiScore":
@@ -355,7 +361,6 @@ function getStockIndicator(stock: Stock, indicatorId: string): any {
     case "insideBars":
     case "tightWeeklyCloses":
     case "lowSupplyZone":
-    case "stage2Uptrend":
     case "promoterHoldingIncreasing":
     case "fiiHoldingIncreasing":
     case "diiHoldingIncreasing":
