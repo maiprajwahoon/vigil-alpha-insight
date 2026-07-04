@@ -147,9 +147,8 @@ export function compileDashboardData(stock: StockDetail, chart: ChartData | null
   const bars = chart?.bars || [];
   const closes = bars.map(b => b.close);
   const volumes = bars.map(b => b.volume);
-
   const cmp = stock.cmp;
-  const pivot = stock.vcp.pivotPrice || cmp;
+  const pivot = Number((stock.vcp.pivotPrice || cmp).toFixed(2));
 
   // Real data stats extraction
   const lastBar = bars[bars.length - 1];

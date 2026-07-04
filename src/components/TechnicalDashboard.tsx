@@ -94,11 +94,11 @@ export function TechnicalDashboard({ stock, chart }: TechnicalDashboardProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-xl border border-white/5 bg-white/[0.01] p-3">
                 <span className="text-[10px] text-muted-foreground block uppercase tracking-wider">Breakout Pivot</span>
-                <span className="font-mono text-base font-bold text-emerald-400 mt-1 block">₹{data.targets.pivot}</span>
+                <span className="font-mono text-base font-bold text-emerald-400 mt-1 block">₹{data.targets.pivot.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               <div className="rounded-xl border border-white/5 bg-white/[0.01] p-3">
                 <span className="text-[10px] text-muted-foreground block uppercase tracking-wider">Stop Loss Target</span>
-                <span className="font-mono text-base font-bold text-rose-400 mt-1 block">₹{data.targets.stopLoss}</span>
+                <span className="font-mono text-base font-bold text-rose-400 mt-1 block">₹{data.targets.stopLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>

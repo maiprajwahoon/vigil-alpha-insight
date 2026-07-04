@@ -283,7 +283,7 @@ export function OverviewDashboard({ stock, chart }: OverviewDashboardProps) {
               </div>
               <div className="rounded-xl border border-white/5 bg-white/[0.01] p-3.5">
                 <span className="text-[10px] text-muted-foreground block uppercase tracking-wider">Recommended Stop Loss</span>
-                <span className="font-mono text-base font-bold text-rose-400 mt-1 block">₹{data.targets.stopLoss}</span>
+                <span className="font-mono text-base font-bold text-rose-400 mt-1 block">₹{data.targets.stopLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
 
@@ -302,7 +302,7 @@ export function OverviewDashboard({ stock, chart }: OverviewDashboardProps) {
           <div className="mt-6 pt-6 border-t border-white/5 space-y-3 text-xs">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Pivot price trigger:</span>
-              <span className="font-mono font-bold text-foreground">₹{data.targets.pivot}</span>
+              <span className="font-mono font-bold text-foreground">₹{data.targets.pivot.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="space-y-1">
               <span className="text-muted-foreground block text-[10px] uppercase tracking-wider">Support Levels</span>
