@@ -103,14 +103,22 @@ export function TechnicalDashboard({ stock, chart }: TechnicalDashboardProps) {
             </div>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-white/5 space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Immediate Resistances:</span>
-              <span className="font-mono font-bold text-foreground">{data.targets.resistances.map(r => `₹${r}`).join(" | ")}</span>
+          <div className="mt-6 pt-6 border-t border-white/5 space-y-3 text-xs">
+            <div className="space-y-1">
+              <span className="text-muted-foreground block text-[10px] uppercase tracking-wider">Immediate Resistances</span>
+              <div className="font-mono font-bold text-foreground bg-white/[0.02] border border-white/5 rounded-lg px-2 py-1.5 flex flex-wrap gap-1.5">
+                {data.targets.resistances.map((r, idx) => (
+                  <span key={idx} className="bg-white/5 px-1.5 py-0.5 rounded border border-white/5 text-[10px]">{`₹${r}`}</span>
+                ))}
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Immediate Supports:</span>
-              <span className="font-mono font-bold text-foreground">{data.targets.supports.map(s => `₹${s}`).join(" | ")}</span>
+            <div className="space-y-1">
+              <span className="text-muted-foreground block text-[10px] uppercase tracking-wider">Immediate Supports</span>
+              <div className="font-mono font-bold text-foreground bg-white/[0.02] border border-white/5 rounded-lg px-2 py-1.5 flex flex-wrap gap-1.5">
+                {data.targets.supports.map((s, idx) => (
+                  <span key={idx} className="bg-white/5 px-1.5 py-0.5 rounded border border-white/5 text-[10px]">{`₹${s}`}</span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
