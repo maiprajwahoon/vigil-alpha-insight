@@ -352,9 +352,9 @@ function SearchSuggestionRow({
   query: string;
 }) {
   const isBullish = item.changePct >= 0;
-  const rowRef = React.useRef<HTMLButtonElement>(null);
+  const rowRef = useRef<HTMLButtonElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (active && rowRef.current) {
       rowRef.current.scrollIntoView({ block: "nearest" });
     }
