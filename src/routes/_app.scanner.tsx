@@ -22,6 +22,7 @@ import { SectionHeading, StatusChip, ScoreBar } from "@/components/Primitives";
 import type { Stock } from "@/lib/types/stock";
 import { useScanResults } from "@/hooks/use-scanner";
 import { RealtimePriceCell } from "@/hooks/use-realtime-price";
+import { StockLogo } from "@/components/StockLogo";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_app/scanner")({
@@ -1172,7 +1173,10 @@ function Scanner() {
                         >
                           {/* Ticker */}
                           <td className="font-mono text-xs font-semibold text-foreground group-hover:underline underline-offset-4 decoration-white/20">
-                            {s.ticker}
+                            <div className="flex items-center gap-2">
+                              <StockLogo ticker={s.ticker} size={24} className="rounded-lg shrink-0" />
+                              <span>{s.ticker}</span>
+                            </div>
                           </td>
                           {/* Company */}
                           <td className="text-foreground/85 truncate max-w-[160px] font-medium">{s.company}</td>

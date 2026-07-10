@@ -10,7 +10,9 @@ import { useRealtimePrice } from "@/hooks/use-realtime-price";
 import { motion } from "@/lib/motion-shim";
 import type { StockDetail } from "@/lib/types/stock";
 import { useWatchlist } from "@/hooks/use-watchlist";
+import { StockLogo } from "@/components/StockLogo";
 import { useAlerts } from "@/hooks/use-alerts";
+import { useShare } from "@/hooks/use-share";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -53,6 +55,7 @@ function StockPage() {
   const { data: stock, isLoading, isError, refetch } = useStock(ticker);
   const { isWatchlisted, toggleWatchlist } = useWatchlist();
   const { alerts, createAlert } = useAlerts();
+  const { share } = useShare();
   const watchlisted = isWatchlisted(ticker);
 
   const [rangeYears, setRangeYears] = useState(3);
@@ -173,29 +176,11 @@ function StockPage() {
 
   const handleShare = () => {
     if (typeof window === "undefined") return;
-    const shareData = {
+    share({
       title: `${stock.company} (${stock.ticker}) — LynchMark`,
       text: `Analyze ${stock.company} breakout signals and technical patterns on LynchMark.`,
       url: window.location.href,
-    };
-
-    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-      navigator.share(shareData)
-        .then(() => toast.success("Shared successfully!"))
-        .catch((err) => {
-          if (err.name !== "AbortError") {
-            toast.error("Failed to share.");
-          }
-        });
-    } else {
-      navigator.clipboard.writeText(window.location.href)
-        .then(() => {
-          toast.success("Link copied to clipboard!");
-        })
-        .catch(() => {
-          toast.error("Failed to copy link.");
-        });
-    }
+    });
   };
 
   return (
@@ -203,9 +188,11 @@ function StockPage() {
       <div className="glass-card p-6 md:p-8">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-6 sm:flex sm:flex-wrap sm:justify-between">
           <div className="flex min-w-0 items-start gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/[0.05] font-mono text-sm">
-              {stock.ticker.slice(0, 3)}
-            </div>
+            <StockLogo
+              ticker={stock.ticker}
+              size={56}
+              className="rounded-2xl shrink-0"
+            />
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-label-mono text-muted-foreground/75">
                 <span className="font-mono">{stock.ticker}</span>

@@ -4,6 +4,7 @@ import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useSearchStocks } from "@/hooks/use-scanner";
 import { getWatchlist } from "@/lib/watchlist";
 import { useAuth } from "@/hooks/use-auth";
+import { StockLogo } from "@/components/StockLogo";
 
 export function TopBar() {
   const { user, signOut } = useAuth();
@@ -348,12 +349,11 @@ function SearchSuggestionRow({
       }`}
     >
       {/* 1. Initials Logo icon */}
-      <div
-        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl font-mono text-xs font-bold text-white shadow-inner uppercase select-none"
-        style={{ background: getLogoGrad(item.ticker) }}
-      >
-        {item.ticker.slice(0, 2)}
-      </div>
+      <StockLogo
+        ticker={item.ticker}
+        size={36}
+        className="rounded-xl"
+      />
 
       {/* 2. Symbol & Details */}
       <div className="min-w-0 flex-1">

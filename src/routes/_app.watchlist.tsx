@@ -4,6 +4,7 @@ import { Plus, Star } from "lucide-react";
 import { SectionHeading } from "@/components/Primitives";
 import { useScanResults } from "@/hooks/use-scanner";
 import { useWatchlist } from "@/hooks/use-watchlist";
+import { StockLogo } from "@/components/StockLogo";
 import { RealtimePriceCell } from "@/hooks/use-realtime-price";
 
 export const Route = createFileRoute("/_app/watchlist")({
@@ -135,9 +136,11 @@ function Watchlist() {
                 >
                   {/* Column 1: Asset / Sector */}
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/[0.03] border border-white/10 text-xs font-mono font-bold tracking-wider text-foreground group-hover:scale-105 group-hover:border-white/25 transition-all select-none uppercase">
-                      {s.ticker.slice(0, 3)}
-                    </div>
+                    <StockLogo
+                      ticker={s.ticker}
+                      size={40}
+                      className="rounded-xl group-hover:scale-105 transition-transform"
+                    />
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-mono text-sm font-bold text-foreground group-hover:text-[#3b82f6] transition-colors leading-none">

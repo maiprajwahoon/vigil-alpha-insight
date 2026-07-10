@@ -6,6 +6,7 @@ import { useScanResults } from "@/hooks/use-scanner";
 import { RealtimePriceCell } from "@/hooks/use-realtime-price";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAlerts } from "@/hooks/use-alerts";
+import { StockLogo } from "@/components/StockLogo";
 
 export const Route = createFileRoute("/_app/alerts")({
   head: () => ({ meta: [{ title: "Alerts — LynchMark" }] }),
@@ -213,12 +214,11 @@ function Alerts() {
                   className="flex items-start gap-4 p-4 transition-all duration-300 hover:bg-white/[0.015] bg-white/[0.005] rounded-2xl border border-white/5 hover:border-white/10 relative group"
                 >
                   {/* HSL Gradient Logo Avatar */}
-                  <div
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-xl font-mono text-xs font-bold text-white shadow-inner uppercase select-none group-hover:scale-105 transition-transform"
-                    style={{ background: getLogoGrad(e.title) }}
-                  >
-                    {e.title.slice(0, 2)}
-                  </div>
+                  <StockLogo
+                    ticker={e.title}
+                    size={40}
+                    className="rounded-xl group-hover:scale-105 transition-transform"
+                  />
 
                   {/* Alert Metadata & Body */}
                   <div className="min-w-0 flex-1">

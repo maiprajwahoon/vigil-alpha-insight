@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SectionHeading, ScoreBar, StatusChip } from "@/components/Primitives";
+import { StockLogo } from "@/components/StockLogo";
 import { useMarketOverview, useScanResults } from "@/hooks/use-scanner";
 import { useRealtimePrice, RealtimePriceCell } from "@/hooks/use-realtime-price";
 import { Loader2 } from "lucide-react";
@@ -201,12 +202,11 @@ function Market() {
                       className="flex items-center gap-3 px-2 py-2.5 transition-all duration-300 hover:bg-white/[0.015] rounded-xl relative group border border-transparent hover:border-white/5 active:bg-white/[0.03]"
                     >
                       {/* Avatar Icon */}
-                      <div
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl font-mono text-[11px] font-bold text-white shadow-inner uppercase select-none group-hover:scale-105 transition-transform"
-                        style={{ background: getLogoGrad(s.ticker) }}
-                      >
-                        {s.ticker.slice(0, 2)}
-                      </div>
+                      <StockLogo
+                        ticker={s.ticker}
+                        size={36}
+                        className="rounded-xl group-hover:scale-105 transition-transform"
+                      />
 
                       {/* Details */}
                       <div className="min-w-0 flex-1">
