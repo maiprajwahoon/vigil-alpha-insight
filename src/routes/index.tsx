@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowDown, LineChart, ShieldCheck, Sparkles, Mail } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, ArrowDown, LineChart, ShieldCheck, Sparkles, Mail, LogOut } from "lucide-react";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { motion } from "@/lib/motion-shim";
 import { CountUp } from "@/components/Primitives";
+import { useAuth } from "@/hooks/use-auth";
+import { AuthModal } from "@/components/AuthModal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,6 +20,20 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { user, signOut } = useAuth();
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [initialSignUp, setInitialSignUp] = useState(false);
+
+  const openSignIn = () => {
+    setInitialSignUp(false);
+    setIsAuthOpen(true);
+  };
+
+  const openSignUp = () => {
+    setInitialSignUp(true);
+    setIsAuthOpen(true);
+  };
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
       <AnimatedBackground />
@@ -36,7 +53,40 @@ function Landing() {
           <a className="hover:text-foreground transition" href="#approach">Approach</a>
           <a className="hover:text-foreground transition" href="#about">About</a>
         </div>
-
+        <div className="flex items-center gap-3">
+          {user ? (
+            <>
+              <Link
+                to="/dashboard"
+                className="rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 px-4 py-2 text-xs text-foreground font-semibold transition"
+              >
+                Enter Terminal
+              </Link>
+              <button
+                onClick={() => signOut()}
+                className="p-2 rounded-xl border border-white/5 hover:bg-red-500/10 hover:text-red-400 text-muted-foreground transition"
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={openSignIn}
+                className="text-xs text-muted-foreground hover:text-foreground font-semibold px-2 py-1.5 transition"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={openSignUp}
+                className="rounded-xl bg-white px-4 py-2 text-xs text-background font-semibold hover:bg-white/90 active:scale-95 transition"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
+        </div>
       </nav>
 
       {/* Hero */}
@@ -76,19 +126,39 @@ function Landing() {
           transition={{ duration: 0.8, delay: 0.55 }}
           className="mt-10 flex flex-wrap items-center justify-center gap-3"
         >
-          <Link
-            to="/scanner"
-            className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-background transition hover:bg-white/90"
-          >
-            Start Screening
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={1.8} />
-          </Link>
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-white/[0.02] px-6 py-3 text-sm font-medium text-foreground transition hover:bg-white/[0.06]"
-          >
-            Explore Dashboard
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to="/scanner"
+                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-background transition hover:bg-white/90"
+              >
+                Start Screening
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={1.8} />
+              </Link>
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-white/[0.02] px-6 py-3 text-sm font-medium text-foreground transition hover:bg-white/[0.06]"
+              >
+                Explore Dashboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={openSignUp}
+                className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-background transition hover:bg-white/90"
+              >
+                Start Screening
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={1.8} />
+              </button>
+              <button
+                onClick={openSignIn}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-white/[0.02] px-6 py-3 text-sm font-medium text-foreground transition hover:bg-white/[0.06]"
+              >
+                Explore Dashboard
+              </button>
+            </>
+          )}
         </motion.div>
 
         {/* stats */}
@@ -146,13 +216,23 @@ function Landing() {
           <p className="text-body-readable mx-auto mt-6 max-w-xl text-xs md:text-sm text-muted-foreground/80">
             A research surface that rewards patience — built for investors who let exceptional businesses do the heavy lifting.
           </p>
-          <Link
-            to="/dashboard"
-            className="mt-10 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-background transition hover:bg-white/90"
-          >
-            Enter the terminal
-            <ArrowRight className="h-4 w-4" strokeWidth={1.8} />
-          </Link>
+          {user ? (
+            <Link
+              to="/dashboard"
+              className="mt-10 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-background transition hover:bg-white/90"
+            >
+              Enter the terminal
+              <ArrowRight className="h-4 w-4" strokeWidth={1.8} />
+            </Link>
+          ) : (
+            <button
+              onClick={openSignIn}
+              className="mt-10 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-background transition hover:bg-white/90"
+            >
+              Enter the terminal
+              <ArrowRight className="h-4 w-4" strokeWidth={1.8} />
+            </button>
+          )}
         </div>
       </section>
 
@@ -212,6 +292,11 @@ function Landing() {
           <span>For research and education. Not investment advice.</span>
         </footer>
       </section>
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        initialSignUp={initialSignUp}
+      />
     </div>
   );
 }
