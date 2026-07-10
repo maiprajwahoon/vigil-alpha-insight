@@ -204,15 +204,17 @@ function StockPage() {
               <h1 className="text-section-heading mt-1.5 truncate text-3.5xl md:text-4xl" title={CompanyMetadataService.getOfficialName(stock.ticker, stock.company)}>
                 {CompanyMetadataService.getOfficialName(stock.ticker, stock.company)}
               </h1>
-              <div className="mt-3.5 flex flex-wrap items-end gap-4">
-                <span className={`font-display font-tabular-nums text-3xl ${flashClass}`}>
+              <div className="mt-4 flex flex-wrap items-baseline gap-7">
+                <span className={`font-mono font-bold text-3xl md:text-3.5xl ${flashClass}`}>
                   ₹{tickingPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
-                <span className={`text-sm font-semibold font-tabular-nums ${tickingChangePct >= 0 ? "text-bull" : "text-bear"}`}>
+                <span className={`text-base font-semibold font-mono ${tickingChangePct >= 0 ? "text-bull" : "text-bear"}`}>
                   {tickingChangePct >= 0 ? "+" : ""}
                   {tickingChange.toFixed(2)} ({tickingChangePct.toFixed(2)}%) today
                 </span>
-                <span className="text-xs font-medium font-tabular-nums text-muted-foreground/80">Mkt cap ₹{(stock.marketCap / 1000).toFixed(1)}k Cr</span>
+                <span className="text-sm font-medium font-mono text-muted-foreground/85">
+                  Mkt cap ₹{(stock.marketCap / 1000).toFixed(1)}k Cr
+                </span>
                 <StatusChip status={stock.status} />
               </div>
             </div>

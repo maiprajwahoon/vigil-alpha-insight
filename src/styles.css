@@ -291,3 +291,93 @@ html.lenis body {
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Premium Numeric Readability Rules */
+@layer utilities {
+  .font-mono {
+    font-variant-numeric: tabular-nums !important;
+    font-feature-settings: "tnum" 1 !important;
+    letter-spacing: 0.03em !important;
+  }
+}
+
+@layer base {
+  /* Increase font-weight of mono text slightly (Regular -> Medium, Medium -> Semibold, etc.) */
+  .font-mono.font-normal,
+  .font-mono:not([class*="font-"]) {
+    font-weight: 500 !important;
+  }
+  .font-mono.font-medium {
+    font-weight: 600 !important;
+  }
+  .font-mono.font-semibold {
+    font-weight: 700 !important;
+  }
+  .font-mono.font-bold {
+    font-weight: 800 !important;
+  }
+
+  /* 10-15% size scale for mono text to improve readability */
+  .font-mono.text-\[9px\] { font-size: 10px !important; }
+  .font-mono.text-\[10px\] { font-size: 11.5px !important; }
+  .font-mono.text-\[11px\] { font-size: 12.5px !important; }
+  .font-mono.text-xs { font-size: 0.84rem !important; }
+  .font-mono.text-sm { font-size: 0.98rem !important; }
+  .font-mono.text-base { font-size: 1.14rem !important; }
+  .font-mono.text-lg { font-size: 1.28rem !important; }
+  .font-mono.text-xl { font-size: 1.42rem !important; }
+  .font-mono.text-2xl { font-size: 1.72rem !important; }
+  .font-mono.text-3xl { font-size: 2.15rem !important; }
+  .font-mono.text-4xl { font-size: 2.6rem !important; }
+
+  /* Spacing around labels and metrics */
+  .text-label-mono {
+    margin-bottom: 0.28rem;
+    letter-spacing: 0.18em !important;
+  }
+
+  /* Table layout, row heights, and padding upgrades */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th {
+    font-weight: 600 !important;
+    color: var(--color-muted-foreground) !important;
+    opacity: 0.85;
+    padding-top: 0.9rem !important;
+    padding-bottom: 0.9rem !important;
+  }
+
+  td {
+    padding-top: 0.9rem !important;
+    padding-bottom: 0.9rem !important;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid oklch(1 0 0 / 2.5%) !important;
+    transition: background-color 0.2s ease;
+  }
+
+  tbody tr:hover {
+    background-color: oklch(1 0 0 / 1%) !important;
+  }
+
+  /* Custom grid columns spacing overrides */
+  .grid-cols-\[1\.5fr_1fr_1fr_1\.6fr_1\.6fr_0\.4fr\] {
+    gap: 1.5rem !important;
+  }
+
+  .grid-cols-\[1\.5fr_1fr_1fr_1\.6fr_1fr\] {
+    gap: 1.5rem !important;
+  }
+
+  /* Increase padding for list items in details */
+  .premium-row-hover {
+    padding-top: 1.15rem !important;
+    padding-bottom: 1.15rem !important;
+  }
+}
+
+

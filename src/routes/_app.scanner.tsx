@@ -1150,7 +1150,7 @@ function Scanner() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[1000px] text-sm">
                   <thead>
-                    <tr className="text-left text-label-mono text-muted-foreground font-bold border-b border-white/5 [&>th]:px-3 [&>th]:pb-3.5">
+                    <tr className="text-left text-label-mono text-muted-foreground font-bold border-b border-white/5 [&>th]:px-4 [&>th]:pb-4 [&>th]:pt-3">
                       <th className="font-medium">Ticker</th>
                       <th className="font-medium">Company</th>
                       <th className="font-medium text-right">Price</th>
@@ -1169,7 +1169,7 @@ function Scanner() {
                       return (
                         <tr
                           key={s.ticker}
-                          className="group premium-row-hover hover:bg-white/[0.02] active:bg-white/[0.035] [&>td]:px-3 [&>td]:py-4 [&>td]:align-middle cursor-pointer"
+                          className="group premium-row-hover hover:bg-white/[0.02] active:bg-white/[0.035] [&>td]:px-4 [&>td]:py-5 [&>td]:align-middle cursor-pointer"
                           onClick={() => navigate({ to: "/stock/$ticker", params: { ticker: s.ticker } })}
                         >
                           {/* Ticker */}

@@ -64,6 +64,18 @@ export function TopBar() {
     }
   }, [isOpen]);
 
+  // Lock background body scroll when spotlight search is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   // Keyboard Shortcuts (Ctrl+K / Cmd+K)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -111,6 +123,12 @@ export function TopBar() {
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActiveIndex((prev) => (prev - 1 + results.length) % results.length);
+    } else if (e.key === "PageDown") {
+      e.preventDefault();
+      setActiveIndex((prev) => Math.min(results.length - 1, prev + 5));
+    } else if (e.key === "PageUp") {
+      e.preventDefault();
+      setActiveIndex((prev) => Math.max(0, prev - 5));
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (activeIndex >= 0 && activeIndex < results.length) {
@@ -198,7 +216,10 @@ export function TopBar() {
             </div>
 
             {/* Scrollable Results / Sections Panel */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin p-3 space-y-4">
+            <div 
+              className="flex-1 overflow-y-auto overscroll-contain scrollbar-thin p-3 space-y-4"
+              onWheel={(e) => e.stopPropagation()}
+            >
               {isLoading && (
                 <div className="flex items-center justify-center gap-2.5 py-12 text-xs text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin text-bull" />
@@ -331,6 +352,13 @@ function SearchSuggestionRow({
   query: string;
 }) {
   const isBullish = item.changePct >= 0;
+  const rowRef = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    if (active && rowRef.current) {
+      rowRef.current.scrollIntoView({ block: "nearest" });
+    }
+  }, [active]);
 
   // Generate HSL gradient logo background based on ticker name
   const getLogoGrad = (ticker: string) => {
@@ -344,6 +372,7 @@ function SearchSuggestionRow({
 
   return (
     <button
+      ref={rowRef}
       onClick={onClick}
       className={`flex w-full items-center gap-3.5 rounded-xl px-3 py-2.5 text-left transition ${
         active ? "bg-white/[0.08] text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"

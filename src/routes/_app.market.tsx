@@ -194,7 +194,7 @@ function Market() {
               {b.data.length === 0 ? (
                 <p className="text-xs text-muted-foreground py-4">No ticker data available.</p>
               ) : (
-                <div className="space-y-1 mt-4">
+                <div className="space-y-2.5 mt-4">
                   {b.data.map((s) => (
                     <Link
                       key={s.ticker}

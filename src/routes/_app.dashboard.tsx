@@ -222,7 +222,7 @@ function Dashboard() {
         <div className="glass-card p-6 flex flex-col justify-between">
           <div>
             <SectionHeading title="Recent alerts" subtitle="Curated signals from your watchlist" />
-            <div className="space-y-1 mt-4">
+            <div className="space-y-2.5 mt-4">
               {ALERTS.map((a) => (
                 <Link
                   key={a.id}
@@ -413,7 +413,7 @@ function Dashboard() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="glass-card p-6">
           <SectionHeading title="Recent breakouts" subtitle="Confirmed weekly closes through pivot" />
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {breakouts.length === 0 && !isLoading && (
               <li className="text-sm text-muted-foreground">No breakouts detected in current scan.</li>
             )}
@@ -441,7 +441,7 @@ function Dashboard() {
 
         <div className="glass-card p-6">
           <SectionHeading title="Upcoming earnings" subtitle="Top-ranked names from scan" />
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {top.slice(0, 5).map((s, i) => (
               <li key={s.ticker} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-white/[0.015] px-4 py-3">
                 <div>
