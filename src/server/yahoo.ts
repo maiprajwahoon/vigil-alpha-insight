@@ -3,6 +3,7 @@ import universe from "@/data/nifty100.json";
 import { growthFromSeries, mergeStatus, scoreGARP } from "@/lib/analysis/garp";
 import { ema } from "@/lib/analysis/ema";
 import { analyzeVCP, resampleToWeekly } from "@/lib/analysis/vcp";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 import { CACHE_TTL, SCAN_CONFIG } from "@/lib/analysis/config";
 import type { ChartData, Stock, StockDetail, WeeklyBar } from "@/lib/types/stock";
 import { cacheGetOrSet, cacheKey } from "./cache";
@@ -376,13 +377,7 @@ export async function analyzeTicker(entry: UniverseEntry): Promise<Stock | null>
       vcp.analysis.volumeDryUpRatio <= 0.6 &&
       vcp.analysis.contractionCount > 0;
 
-    let officialCompanyName = quote.name || entry.company;
-    try {
-      const { CompanyMetadataService } = await import("@/lib/stock-resolver");
-      officialCompanyName = CompanyMetadataService.getOfficialName(entry.ticker, officialCompanyName);
-    } catch (e) {
-      console.warn("Failed to import CompanyMetadataService in analyzeTicker:", e);
-    }
+    const officialCompanyName = CompanyMetadataService.getOfficialName(entry.ticker, quote.name || entry.company);
 
     return {
       ticker: entry.ticker,

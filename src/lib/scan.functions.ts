@@ -3,6 +3,7 @@ import { applyScannerFilters } from "@/lib/analysis/scanner";
 import { CACHE_TTL } from "@/lib/analysis/config";
 import type { ChartData, ScannerFilters, ScanResult, StockDetail } from "@/lib/types/stock";
 import { STOCKS as MOCK_STOCKS } from "@/lib/mock-data";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 
 const USE_MOCK = false;
 
@@ -222,9 +223,11 @@ export const searchStocks = createServerFn({ method: "GET" })
           runningPrice = runningPrice / (1 + (dailyChangeRatio / 5) + noise);
         }
 
+        const cleanCompany = CompanyMetadataService.getOfficialName(ticker, target.companyName);
+
         return {
           ticker,
-          company: target.companyName,
+          company: cleanCompany,
           exchange,
           price,
           change,
