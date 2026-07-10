@@ -137,9 +137,9 @@ function Dashboard() {
   return (
     <div className="mx-auto max-w-7xl space-y-10">
       <div>
-        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Overview</p>
-        <h1 className="font-display mt-2 text-4xl">{greeting}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">A calm read of the market, curated for the patient investor.</p>
+        <p className="text-label-mono text-muted-foreground/85">Overview</p>
+        <h1 className="text-hero mt-2 text-3.5xl md:text-4xl">{greeting}</h1>
+        <p className="text-body-readable mt-1.5 text-xs md:text-sm text-muted-foreground/80">A calm read of the market, curated for the patient investor.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -207,7 +207,7 @@ function Dashboard() {
                     }}
                   >
                     <div className="text-xs text-foreground/90">{s.name}</div>
-                    <div className={`absolute bottom-3 left-3 font-display text-xl ${up ? "text-bull" : "text-bear"}`}>
+                    <div className={`absolute bottom-3 left-3 font-display font-tabular-nums text-xl ${up ? "text-bull" : "text-bear"}`}>
                       {up ? "+" : ""}{s.change.toFixed(2)}%
                     </div>
                   </motion.div>
@@ -301,7 +301,7 @@ function Dashboard() {
         ) : (
           <div className="flex flex-col select-none">
             {/* Header */}
-            <div className="hidden sm:grid grid-cols-[1.5fr_1fr_1fr_1.6fr_1fr] gap-4 items-center px-4 py-3 text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-bold border-b border-white/5">
+            <div className="hidden sm:grid grid-cols-[1.5fr_1fr_1fr_1.6fr_1fr] gap-4 items-center px-4 py-3 text-label-mono text-muted-foreground font-bold border-b border-white/5">
               <div>Asset / Sector</div>
               <div className="text-right">Price Trend</div>
               <div className="text-right">Price Today</div>
@@ -316,7 +316,7 @@ function Dashboard() {
                   key={s.ticker}
                   to="/stock/$ticker"
                   params={{ ticker: s.ticker }}
-                  className="grid grid-cols-[minmax(0,1.5fr)_auto] sm:grid-cols-[1.5fr_1fr_1fr_1.6fr_1fr] gap-4 items-center px-4 py-4 hover:bg-white/[0.015] active:bg-white/[0.03] transition-all duration-300 relative group overflow-hidden first:rounded-t-xl last:rounded-b-xl border border-transparent hover:border-white/5"
+                  className="grid grid-cols-[minmax(0,1.5fr)_auto] sm:grid-cols-[1.5fr_1fr_1fr_1.6fr_1fr] gap-4 items-center px-4 py-4 premium-row-hover hover:bg-white/[0.02] hover:shadow-inner hover:shadow-black/25 active:bg-white/[0.04] relative group overflow-hidden first:rounded-t-xl last:rounded-b-xl border border-transparent hover:border-white/10"
                 >
                   {/* Column 1: Asset / Sector */}
                   <div className="flex items-center gap-3 min-w-0">
@@ -345,10 +345,10 @@ function Dashboard() {
 
                   {/* Column 3: Price Today */}
                   <div className="text-right">
-                    <div className="font-mono text-sm font-bold text-foreground">
+                    <div className="font-mono font-tabular-nums text-sm font-bold text-foreground">
                       <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} />
                     </div>
-                    <div className={`inline-flex items-center gap-0.5 text-[11px] font-bold mt-1 ${s.changePct >= 0 ? "text-bull" : "text-bear"}`}>
+                    <div className={`inline-flex items-center gap-0.5 text-[11px] font-bold mt-1 font-tabular-nums ${s.changePct >= 0 ? "text-bull" : "text-bear"}`}>
                       {s.changePct >= 0 ? "▲" : "▼"} {Math.abs(s.changePct).toFixed(2)}%
                     </div>
                   </div>
@@ -396,7 +396,7 @@ function Dashboard() {
                   {/* Column 5: Status & Ratios */}
                   <div className="text-right hidden sm:flex flex-col items-end gap-1">
                     <StatusChip status={s.status} />
-                    <span className="text-[9.5px] text-foreground/80 font-mono mt-0.5">
+                    <span className="text-[9.5px] text-foreground/80 font-mono font-tabular-nums mt-0.5">
                       P/E: {s.pe ? s.pe.toFixed(1) : "—"} · ROE: {s.roe ? s.roe.toFixed(0) : "—"}%
                     </span>
                   </div>

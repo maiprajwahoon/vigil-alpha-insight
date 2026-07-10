@@ -52,15 +52,28 @@ function LoginPage() {
     try {
       if (isSignUp) {
         // Sign Up — just email + password, name collected later
+        const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/login` : undefined;
         const { error, data } = await supabase.auth.signUp({
           email: email.trim(),
           password: password.trim(),
+          options: {
+            emailRedirectTo: redirectTo,
+          },
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message.toLowerCase().includes("rate limit") || error.message.toLowerCase().includes("security purposes") || error.message.toLowerCase().includes("limit exceeded")) {
+            throw new Error(
+              "Email rate limit exceeded (Supabase's default limit is 3 emails/hour). Please disable 'Confirm email' under Authentication > Providers > Email in your Supabase Dashboard to log in immediately without verification."
+            );
+          }
+          throw error;
+        }
 
         if (data.user && data.session === null) {
-          setSuccessMsg("Verification link sent! Please check your email to complete registration.");
+          setSuccessMsg(
+            "Verification link sent! Please check your email to verify your account before logging in. Note: You can disable this verification requirement under Authentication > Providers > Email in your Supabase Dashboard to log in immediately."
+          );
           setEmail("");
           setPassword("");
         } else {
@@ -74,7 +87,14 @@ function LoginPage() {
           password: password.trim(),
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes("Invalid login credentials") || error.message.includes("Email not confirmed")) {
+            throw new Error(
+              "Invalid login credentials. If you just registered, please check your email for the verification link or disable 'Confirm email' under Authentication > Providers > Email in your Supabase Dashboard."
+            );
+          }
+          throw error;
+        }
 
         // Check if user has completed onboarding
         const hasName = data.user?.user_metadata?.full_name?.trim();

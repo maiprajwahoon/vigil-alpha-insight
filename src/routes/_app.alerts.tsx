@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Activity, BarChart3, Bell, FileText, TrendingUp, Zap } from "lucide-react";
+import { Activity, BarChart3, Bell, FileText, TrendingUp, Zap, Trash2 } from "lucide-react";
 import { SectionHeading, ScoreBar, StatusChip } from "@/components/Primitives";
 import { useScanResults } from "@/hooks/use-scanner";
 import { RealtimePriceCell } from "@/hooks/use-realtime-price";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useAlerts } from "@/hooks/use-alerts";
 
 export const Route = createFileRoute("/_app/alerts")({
   head: () => ({ meta: [{ title: "Alerts — LynchMark" }] }),
@@ -31,6 +32,7 @@ function getLogoGrad(ticker: string) {
 
 function Alerts() {
   const navigate = useNavigate();
+  const { alerts, toggleAlert, deleteAlert } = useAlerts();
   const { data: scan } = useScanResults({});
   const stocks = scan?.stocks ?? [];
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -102,6 +104,82 @@ function Alerts() {
             </div>
           );
         })}
+      </div>
+
+      {/* Custom Alerts Section */}
+      <div className="glass-card p-6">
+        <SectionHeading 
+          title="Active Price Alerts" 
+          subtitle="Your custom defined trigger thresholds and crossover alerts" 
+        />
+        {alerts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed border-white/5 rounded-2xl mt-6">
+            <Bell className="h-8 w-8 text-muted-foreground/50 mb-3 animate-pulse" strokeWidth={1.2} />
+            <p className="text-sm text-muted-foreground font-sans">
+              No custom alerts configured
+            </p>
+            <p className="text-xs text-muted-foreground/60 mt-1 max-w-xs leading-relaxed">
+              Navigate to any stock details page and click the "Alert" button to configure your price thresholds.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground border-b border-border/60 [&>th]:px-4 [&>th]:pb-2">
+                  <th className="font-medium">Ticker</th>
+                  <th className="font-medium">Condition</th>
+                  <th className="font-medium">Target Value</th>
+                  <th className="font-medium text-center w-24">Status</th>
+                  <th className="font-medium text-right w-16">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {alerts.map((alert) => (
+                  <tr key={alert.id} className="group transition-colors hover:bg-white/[0.015] [&>td]:py-3 [&>td]:px-4">
+                    <td className="font-mono text-xs font-semibold text-foreground">
+                      <Link 
+                        to="/stock/$ticker" 
+                        params={{ ticker: alert.ticker }}
+                        className="hover:underline hover:text-[#3b82f6]"
+                      >
+                        {alert.ticker}
+                      </Link>
+                    </td>
+                    <td className="text-foreground/80 text-xs">
+                      {alert.type}
+                    </td>
+                    <td className="font-mono text-xs text-foreground/80">
+                      {alert.value !== null ? (alert.type.startsWith("RSI") ? `${alert.value}` : `₹${alert.value.toLocaleString()}`) : "—"}
+                    </td>
+                    <td className="text-center align-middle">
+                      <button
+                        onClick={() => toggleAlert(alert.id, !alert.is_active)}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition-all border ${
+                          alert.is_active
+                            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                            : "bg-white/5 border-white/10 text-muted-foreground"
+                        }`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${alert.is_active ? "bg-emerald-400" : "bg-muted-foreground"} animate-pulse`} />
+                        {alert.is_active ? "Enabled" : "Disabled"}
+                      </button>
+                    </td>
+                    <td className="text-right">
+                      <button
+                        onClick={() => deleteAlert(alert.id)}
+                        className="p-1 rounded text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition active:scale-90"
+                        title="Delete alert"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Timeline Section */}

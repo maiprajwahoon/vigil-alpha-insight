@@ -1148,7 +1148,7 @@ function Scanner() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[1000px] text-sm">
                   <thead>
-                    <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground border-b border-white/5 [&>th]:px-3 [&>th]:pb-3.5">
+                    <tr className="text-left text-label-mono text-muted-foreground font-bold border-b border-white/5 [&>th]:px-3 [&>th]:pb-3.5">
                       <th className="font-medium">Ticker</th>
                       <th className="font-medium">Company</th>
                       <th className="font-medium text-right">Price</th>
@@ -1167,7 +1167,7 @@ function Scanner() {
                       return (
                         <tr
                           key={s.ticker}
-                          className="group hover:bg-white/[0.015] active:bg-white/[0.025] transition [&>td]:px-3 [&>td]:py-4 [&>td]:align-middle cursor-pointer"
+                          className="group premium-row-hover hover:bg-white/[0.02] active:bg-white/[0.035] [&>td]:px-3 [&>td]:py-4 [&>td]:align-middle cursor-pointer"
                           onClick={() => navigate({ to: "/stock/$ticker", params: { ticker: s.ticker } })}
                         >
                           {/* Ticker */}
@@ -1177,16 +1177,16 @@ function Scanner() {
                           {/* Company */}
                           <td className="text-foreground/85 truncate max-w-[160px] font-medium">{s.company}</td>
                           {/* Price */}
-                          <td className="text-right font-mono" onClick={(e) => e.stopPropagation()}>
+                          <td className="text-right font-mono font-tabular-nums" onClick={(e) => e.stopPropagation()}>
                             <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} />
-                            <div className={`text-[10px] ${s.changePct >= 0 ? "text-bull" : "text-bear"}`}>
+                            <div className={`text-[10px] font-bold ${s.changePct >= 0 ? "text-bull" : "text-bear"}`}>
                               {s.changePct >= 0 ? "+" : ""}{s.changePct.toFixed(2)}%
                             </div>
                           </td>
                           {/* LM Overall Score with detailed breakdown on hover */}
                           <td className="relative group/score" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center gap-1 cursor-pointer">
-                              <span className={`font-display font-bold text-xs px-2 py-0.5 rounded ${
+                              <span className={`font-display font-tabular-nums font-bold text-xs px-2 py-0.5 rounded border ${
                                 score.overallScore >= 80 ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" :
                                 score.overallScore >= 60 ? "bg-teal-500/10 border border-teal-500/20 text-teal-400" :
                                 score.overallScore >= 40 ? "bg-blue-500/10 border border-blue-500/20 text-blue-400" :
@@ -1203,7 +1203,7 @@ function Scanner() {
                                 <span>LM Scores breakdown</span>
                                 <span className="font-mono text-blue-400">{s.ticker}</span>
                               </div>
-                              <div className="space-y-1 text-[10px]">
+                              <div className="space-y-1 text-[10px] font-tabular-nums">
                                 <div className="flex justify-between">
                                   <span className="text-muted-foreground">GARP Score:</span>
                                   <span className="font-semibold text-foreground">{score.garpScore}/100</span>
@@ -1225,7 +1225,7 @@ function Scanner() {
                                   <span className="font-semibold text-foreground">{score.technicalScore}/100</span>
                                 </div>
                               </div>
-                              <div className="border-t border-white/5 pt-1.5 flex justify-between font-bold text-[11px] text-blue-400 leading-none">
+                              <div className="border-t border-white/5 pt-1.5 flex justify-between font-bold text-[11px] text-blue-400 font-tabular-nums leading-none">
                                 <span>Overall Rating:</span>
                                 <span>{score.overallScore} / 100</span>
                               </div>

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Bell, GitCompareArrows, Loader2, Share2, Star, CheckCircle2, Newspaper } from "lucide-react";
+import { Bell, Loader2, Share2, Star, CheckCircle2, Newspaper } from "lucide-react";
 import { SectionHeading, ScoreBar, StatusChip } from "@/components/Primitives";
 import { StockChart } from "@/components/StockChart";
 import { OverviewDashboard } from "@/components/OverviewDashboard";
@@ -9,7 +9,10 @@ import { useStock, useStockChart, useStockNews } from "@/hooks/use-scanner";
 import { useRealtimePrice } from "@/hooks/use-realtime-price";
 import { motion } from "@/lib/motion-shim";
 import type { StockDetail } from "@/lib/types/stock";
-import { isInWatchlist, toggleWatchlist } from "@/lib/watchlist";
+import { useWatchlist } from "@/hooks/use-watchlist";
+import { useAlerts } from "@/hooks/use-alerts";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/stock/$ticker")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -48,8 +51,19 @@ function StockPage() {
   };
 
   const { data: stock, isLoading, isError, refetch } = useStock(ticker);
-  const [watchlisted, setWatchlisted] = useState(() => isInWatchlist(ticker));
+  const { isWatchlisted, toggleWatchlist } = useWatchlist();
+  const { alerts, createAlert } = useAlerts();
+  const watchlisted = isWatchlisted(ticker);
+
   const [rangeYears, setRangeYears] = useState(3);
+  const [hoveredRect, setHoveredRect] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [alertType, setAlertType] = useState("Price Above");
+  const [alertValue, setAlertValue] = useState("");
+
+  const alertActive = alerts.some(a => a.ticker.toUpperCase() === ticker.toUpperCase() && a.is_active);
 
   // Reset rangeYears to 3 when timeframe changes
   useEffect(() => {
@@ -143,7 +157,45 @@ function StockPage() {
 
   const handleWatchlist = () => {
     toggleWatchlist(ticker);
-    setWatchlisted(isInWatchlist(ticker));
+  };
+
+  const handleCreateAlertSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsedVal = alertValue ? parseFloat(alertValue) : null;
+    await createAlert({
+      ticker,
+      type: alertType,
+      value: parsedVal,
+    });
+    setIsAlertDialogOpen(false);
+    setAlertValue("");
+  };
+
+  const handleShare = () => {
+    if (typeof window === "undefined") return;
+    const shareData = {
+      title: `${stock.company} (${stock.ticker}) — LynchMark`,
+      text: `Analyze ${stock.company} breakout signals and technical patterns on LynchMark.`,
+      url: window.location.href,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      navigator.share(shareData)
+        .then(() => toast.success("Shared successfully!"))
+        .catch((err) => {
+          if (err.name !== "AbortError") {
+            toast.error("Failed to share.");
+          }
+        });
+    } else {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+          toast.success("Link copied to clipboard!");
+        })
+        .catch(() => {
+          toast.error("Failed to copy link.");
+        });
+    }
   };
 
   return (
@@ -155,21 +207,21 @@ function StockPage() {
               {stock.ticker.slice(0, 3)}
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-label-mono text-muted-foreground/75">
                 <span className="font-mono">{stock.ticker}</span>
                 <span>·</span>
                 <span>{stock.sector}</span>
               </div>
-              <h1 className="font-display mt-1 truncate text-3xl md:text-4xl">{stock.company}</h1>
-              <div className="mt-3 flex flex-wrap items-end gap-4">
-                <span className={`font-display text-3xl ${flashClass}`}>
+              <h1 className="text-section-heading mt-1.5 truncate text-3.5xl md:text-4xl">{stock.company}</h1>
+              <div className="mt-3.5 flex flex-wrap items-end gap-4">
+                <span className={`font-display font-tabular-nums text-3xl ${flashClass}`}>
                   ₹{tickingPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
-                <span className={`text-sm ${tickingChangePct >= 0 ? "text-bull" : "text-bear"}`}>
+                <span className={`text-sm font-semibold font-tabular-nums ${tickingChangePct >= 0 ? "text-bull" : "text-bear"}`}>
                   {tickingChangePct >= 0 ? "+" : ""}
                   {tickingChange.toFixed(2)} ({tickingChangePct.toFixed(2)}%) today
                 </span>
-                <span className="text-xs text-muted-foreground">Mkt cap ₹{(stock.marketCap / 1000).toFixed(1)}k Cr</span>
+                <span className="text-xs font-medium font-tabular-nums text-muted-foreground/80">Mkt cap ₹{(stock.marketCap / 1000).toFixed(1)}k Cr</span>
                 <StatusChip status={stock.status} />
               </div>
             </div>
@@ -177,27 +229,76 @@ function StockPage() {
 
           <div className="flex shrink-0 flex-wrap gap-2">
             <HeaderBtn icon={Star} label={watchlisted ? "Watching" : "Watchlist"} onClick={handleWatchlist} active={watchlisted} />
-            <HeaderBtn icon={Bell} label="Alert" />
-            <HeaderBtn icon={GitCompareArrows} label="Compare" />
-            <HeaderBtn icon={Share2} label="Share" />
+            <HeaderBtn icon={Bell} label={alertActive ? "Alert Active" : "Alert"} onClick={() => {
+              setAlertType("Price Above");
+              setAlertValue(Math.round(tickingPrice).toString());
+              setIsAlertDialogOpen(true);
+            }} active={alertActive} />
+            <HeaderBtn icon={Share2} label="Share" onClick={handleShare} />
           </div>
         </div>
 
-        <div className="mt-8 flex gap-1 overflow-x-auto border-t border-border pt-4">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`relative whitespace-nowrap rounded-lg px-4 py-2 text-sm transition ${
-                activeTab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {activeTab === t && (
-                <motion.span layoutId="stock-tab" className="absolute inset-0 rounded-lg bg-white/[0.06]" />
-              )}
-              <span className="relative">{t}</span>
-            </button>
-          ))}
+        <div
+          className="mt-8 flex gap-1 overflow-x-auto border-t border-border pt-4 relative"
+          onMouseLeave={() => {
+            setHoveredRect(null);
+            setHoveredTab(null);
+          }}
+        >
+          {/* Animated gliding hover pill background */}
+          <div
+            className="absolute rounded-lg bg-white/[0.03] border border-white/5 pointer-events-none transition-all"
+            style={{
+              left: 0,
+              top: 0,
+              width: hoveredRect ? `${hoveredRect.width}px` : "0px",
+              height: hoveredRect ? `${hoveredRect.height}px` : "0px",
+              transform: hoveredRect
+                ? `translate3d(${hoveredRect.left}px, ${hoveredRect.top}px, 0px) scale(1)`
+                : "translate3d(0px, 0px, 0px) scale(0.95)",
+              opacity: hoveredRect ? 1 : 0,
+              transitionProperty: "transform, width, height, opacity",
+              transitionDuration: hoveredRect ? "300ms" : "200ms",
+              transitionTimingFunction: hoveredRect
+                ? "cubic-bezier(0.16, 1, 0.3, 1)"
+                : "cubic-bezier(0.25, 1, 0.5, 1)",
+            }}
+          />
+
+          {TABS.map((t) => {
+            const active = activeTab === t;
+            const isHovered = hoveredTab === t;
+            return (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                onMouseEnter={(e) => {
+                  const target = e.currentTarget;
+                  const parent = target.parentElement;
+                  if (parent) {
+                    const targetRect = target.getBoundingClientRect();
+                    const parentRect = parent.getBoundingClientRect();
+                    const scrollLeft = parent.scrollLeft;
+                    setHoveredRect({
+                      left: targetRect.left - parentRect.left + scrollLeft,
+                      top: targetRect.top - parentRect.top,
+                      width: targetRect.width,
+                      height: targetRect.height,
+                    });
+                    setHoveredTab(t);
+                  }
+                }}
+                className={`relative whitespace-nowrap rounded-lg px-4 py-2 text-sm transition-colors duration-300 ${
+                  active || isHovered ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
+                {active && (
+                  <motion.span layoutId="stock-tab" className="absolute inset-0 rounded-lg bg-white/[0.06]" />
+                )}
+                <span className="relative">{t}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -217,6 +318,78 @@ function StockPage() {
         />
       )}
       {activeTab === "Fundamentals" && <Fundamentals stock={stock} />}
+      <Dialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
+        <DialogContent className="max-w-md bg-[#111111] border border-white/10 text-foreground p-6 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl text-foreground">Create Price Alert</DialogTitle>
+            <DialogDescription className="text-muted-foreground text-xs">
+              Get notified when {ticker.toUpperCase()} meets your specified condition.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateAlertSubmit} className="space-y-4 mt-4 text-sm">
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Condition Type</label>
+              <select
+                value={alertType}
+                onChange={(e) => {
+                  setAlertType(e.target.value);
+                  if (["Price Above", "Price Below"].includes(e.target.value)) {
+                    setAlertValue(Math.round(tickingPrice).toString());
+                  } else if (["RSI Above", "RSI Below"].includes(e.target.value)) {
+                    setAlertValue("60");
+                  } else {
+                    setAlertValue("");
+                  }
+                }}
+                className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3.5 py-2 text-foreground focus:outline-none focus:border-white/20 text-xs"
+              >
+                <option value="Price Above" className="bg-[#111] text-foreground">Price Above</option>
+                <option value="Price Below" className="bg-[#111] text-foreground">Price Below</option>
+                <option value="Breakout" className="bg-[#111] text-foreground">Breakout</option>
+                <option value="Volume Spike" className="bg-[#111] text-foreground">Volume Spike</option>
+                <option value="New 52 Week High" className="bg-[#111] text-foreground">New 52 Week High</option>
+                <option value="New 52 Week Low" className="bg-[#111] text-foreground">New 52 Week Low</option>
+                <option value="RSI Above" className="bg-[#111] text-foreground">RSI Above</option>
+                <option value="RSI Below" className="bg-[#111] text-foreground">RSI Below</option>
+                <option value="EMA Crossover" className="bg-[#111] text-foreground">Moving Average Crossover</option>
+              </select>
+            </div>
+
+            {["Price Above", "Price Below", "RSI Above", "RSI Below"].includes(alertType) && (
+              <div className="space-y-1.5">
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  {alertType.startsWith("RSI") ? "RSI Value (0 - 100)" : "Target Price (₹)"}
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  required
+                  value={alertValue}
+                  onChange={(e) => setAlertValue(e.target.value)}
+                  placeholder={alertType.startsWith("RSI") ? "e.g. 70" : `Current: ₹${tickingPrice.toFixed(2)}`}
+                  className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3.5 py-2 text-foreground focus:outline-none focus:border-white/20 text-xs font-mono"
+                />
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsAlertDialogOpen(false)}
+                className="px-4 py-2 rounded-xl border border-white/5 text-xs text-muted-foreground hover:text-foreground hover:bg-white/5 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-xl bg-white text-black font-semibold text-xs hover:bg-white/90 transition active:scale-95"
+              >
+                Set Alert
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

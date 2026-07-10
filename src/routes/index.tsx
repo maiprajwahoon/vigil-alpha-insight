@@ -46,7 +46,7 @@ function Landing() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className="font-display mt-8 text-[clamp(3.5rem,10vw,9rem)] leading-[0.95] tracking-tight"
+          className="text-hero mt-8 text-[clamp(3.5rem,10vw,9rem)]"
         >
           LynchMark
         </motion.h1>
@@ -55,7 +55,7 @@ function Landing() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.25 }}
-          className="mx-auto mt-6 max-w-2xl text-base md:text-lg text-muted-foreground"
+          className="text-subheading text-muted-foreground/90 mx-auto mt-6 max-w-2xl text-base md:text-lg"
         >
           Inspired by legendary growth investors and trend-following traders.
         </motion.p>
@@ -64,7 +64,7 @@ function Landing() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="mx-auto mt-3 max-w-2xl text-sm md:text-base text-muted-foreground/80"
+          className="text-body-readable text-muted-foreground/80 mx-auto mt-4 max-w-2xl text-sm md:text-base"
         >
           Discover fundamentally exceptional businesses forming high-probability technical setups using
           GARP investing and weekly VCP analysis.
@@ -100,10 +100,10 @@ function Landing() {
             { label: "Market Health", value: "Strong", isText: true },
           ].map((s) => (
             <div key={s.label} className="bg-background px-6 py-7 text-left">
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
-              <div className="mt-2 font-display text-3xl">
+              <div className="text-label-mono text-muted-foreground/75">{s.label}</div>
+              <div className="mt-2 font-display font-tabular-nums text-3xl tracking-tight text-foreground/95">
                 {s.isText ? s.value : <CountUp to={s.value as number} />}
-                {s.suffix && <span className="ml-1 text-base text-muted-foreground">{s.suffix}</span>}
+                {s.suffix && <span className="ml-0.5 text-base text-muted-foreground font-normal">{s.suffix}</span>}
               </div>
             </div>
           ))}
@@ -127,10 +127,10 @@ function Landing() {
             { icon: LineChart, title: "Confirmed by tape.", body: "Weekly VCP analysis filters for the quiet phases that precede institutional accumulation, so conviction meets timing." },
             { icon: ShieldCheck, title: "Discipline by design.", body: "Risk-aware scoring across growth, valuation, and structure keeps you patient when others chase, and decisive when it matters." },
           ].map((c) => (
-            <div key={c.title} className="glass-card p-8">
+            <div key={c.title} className="glass-card premium-card-hover p-8">
               <c.icon className="h-5 w-5 text-foreground" strokeWidth={1.6} />
-              <h3 className="font-display mt-6 text-2xl">{c.title}</h3>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{c.body}</p>
+              <h3 className="text-section-heading mt-6 text-xl md:text-2xl">{c.title}</h3>
+              <p className="text-body-readable mt-3 text-xs md:text-sm text-muted-foreground/85">{c.body}</p>
             </div>
           ))}
         </div>
@@ -138,12 +138,12 @@ function Landing() {
 
       {/* Approach */}
       <section id="approach" className="relative z-10 mx-auto max-w-6xl px-6 pb-40">
-        <div className="glass-card p-10 md:p-16 text-center">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">The LynchMark approach</p>
-          <p className="font-display mt-6 text-3xl md:text-5xl leading-tight max-w-3xl mx-auto">
+        <div className="glass-card premium-card-hover p-10 md:p-16 text-center">
+          <p className="text-label-mono text-muted-foreground/75">The LynchMark approach</p>
+          <p className="font-display mt-6 text-3xl md:text-5xl leading-[1.1] tracking-tight max-w-3xl mx-auto">
             "Know what you own, and know why you own it."
           </p>
-          <p className="mx-auto mt-6 max-w-xl text-sm text-muted-foreground">
+          <p className="text-body-readable mx-auto mt-6 max-w-xl text-xs md:text-sm text-muted-foreground/80">
             A research surface that rewards patience — built for investors who let exceptional businesses do the heavy lifting.
           </p>
           <Link
@@ -158,32 +158,32 @@ function Landing() {
 
       {/* About */}
       <section id="about" className="relative z-10 mx-auto max-w-6xl px-6 pb-32">
-        <div className="glass-card p-10 md:p-14 space-y-8">
+        <div className="glass-card premium-card-hover p-10 md:p-14 space-y-8">
           {/* Header */}
           <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">About</p>
-            <h2 className="font-display text-3xl md:text-4xl">LynchMark <span className="text-muted-foreground text-2xl">(LM)</span></h2>
+            <p className="text-label-mono text-muted-foreground/75">About</p>
+            <h2 className="text-section-heading text-3xl md:text-4xl">LynchMark <span className="text-muted-foreground text-2xl font-normal">(LM)</span></h2>
           </div>
 
           {/* Body */}
           <div className="space-y-5 max-w-3xl">
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-body-readable text-xs md:text-sm text-muted-foreground/85">
               LynchMark (LM) is a stock analysis platform designed to help investors better understand
               the Indian stock market using{" "}
-              <span className="text-foreground font-medium">GARP (Growth at a Reasonable Price)</span>{" "}
+              <span className="text-foreground font-semibold">GARP (Growth at a Reasonable Price)</span>{" "}
               investing principles and{" "}
-              <span className="text-foreground font-medium">Mark Minervini's VCP strategy</span>.
+              <span className="text-foreground font-semibold">Mark Minervini's VCP strategy</span>.
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Built by <span className="text-foreground font-medium">Prajwal</span>, a 3rd Year Engineering
+            <p className="text-body-readable text-xs md:text-sm text-muted-foreground/85">
+              Built by <span className="text-foreground font-semibold">Prajwal</span>, a 3rd Year Engineering
               Student, LM aims to simplify stock research by combining fundamental and technical analysis
               into one intuitive platform.
             </p>
 
             {/* Disclaimer */}
             <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground/60 mb-2">Disclaimer</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-label-mono text-muted-foreground/60 mb-2">Disclaimer</p>
+              <p className="text-body-readable text-xs md:text-sm text-muted-foreground/80">
                 LM is only a <span className="text-foreground">research and learning tool</span> and does not
                 provide financial or investment advice. Please invest at your own risk and always do your own
                 research before making any investment decisions.

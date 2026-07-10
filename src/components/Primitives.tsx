@@ -47,15 +47,15 @@ export function StatCard({
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="group glass-card p-5 transition-all hover:border-white/15 hover:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] cursor-default select-none relative overflow-hidden"
+      className="group glass-card premium-card-hover p-5 cursor-default select-none relative overflow-hidden"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           {Icon && <Icon className="h-4 w-4 text-muted-foreground/60 group-hover:text-[#3b82f6] transition-colors" strokeWidth={1.6} />}
-          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground/80">{label}</span>
+          <span className="text-label-mono text-muted-foreground/80">{label}</span>
         </div>
         {delta !== undefined && (
-          <span className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-bold ${
+          <span className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-bold font-tabular-nums ${
             isUp ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/15" : "bg-red-500/10 text-red-400 border border-red-500/15"
           }`}>
             {isUp ? <ArrowUpRight className="h-2.5 w-2.5" /> : <ArrowDownRight className="h-2.5 w-2.5" />}
@@ -65,7 +65,7 @@ export function StatCard({
       </div>
 
       <div className="mt-4 flex items-baseline justify-between gap-4">
-        <div className="font-display text-3xl font-semibold tracking-tight text-foreground/95">
+        <div className="font-display font-tabular-nums text-3xl font-semibold tracking-tight text-foreground/95">
           {typeof value === "number" ? <CountUp to={value} /> : value}
           {suffix && <span className="ml-0.5 text-lg text-muted-foreground font-normal">{suffix}</span>}
         </div>
@@ -138,7 +138,7 @@ export function ScoreBar({ value, label }: { value: number; label?: string }) {
       <div className="space-y-1.5 select-none">
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground/80 font-medium">{label}</span>
-          <span className={`font-bold px-1.5 py-0.5 rounded leading-none ${badgeColor}`}>{value}/100</span>
+          <span className={`font-bold font-tabular-nums px-1.5 py-0.5 rounded leading-none ${badgeColor}`}>{value}/100</span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
           <motion.div
@@ -155,7 +155,7 @@ export function ScoreBar({ value, label }: { value: number; label?: string }) {
   return (
     <div className="flex flex-col gap-1 select-none">
       <div>
-        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded leading-none ${badgeColor}`}>
+        <span className={`text-[10px] font-bold font-tabular-nums px-1.5 py-0.5 rounded leading-none ${badgeColor}`}>
           {value}/100
         </span>
       </div>
@@ -180,9 +180,9 @@ export function ScoreBar({ value, label }: { value: number; label?: string }) {
 export function SectionHeading({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
   return (
     <div className="mb-6 flex items-end justify-between gap-4 select-none">
-      <div>
-        <h2 className="font-display text-2.5xl font-semibold text-foreground/95">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-foreground/75 leading-normal">{subtitle}</p>}
+      <div className="space-y-1">
+        <h2 className="text-section-heading text-2xl md:text-2.5xl text-foreground/95">{title}</h2>
+        {subtitle && <p className="text-body-readable text-xs md:text-sm text-muted-foreground">{subtitle}</p>}
       </div>
       {action}
     </div>

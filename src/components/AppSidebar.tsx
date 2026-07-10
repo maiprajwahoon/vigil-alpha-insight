@@ -29,6 +29,8 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: market } = useMarketOverview();
   const [collapsed, setCollapsed] = useState(false);
+  const [hoveredRect, setHoveredRect] = useState<{ top: number; height: number } | null>(null);
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
   const niftyData = market?.indices?.find((i) => i.name === "NIFTY 50") || { value: 24300, changePct: 0.5 };
   const { price, changePct, direction } = useRealtimePrice("^NSEI", niftyData.value, niftyData.changePct);
@@ -63,19 +65,50 @@ export function AppSidebar() {
         </button>
       </div>
 
-      <nav className="flex-1 px-3 space-y-0.5">
+      <nav
+        className="flex-1 px-3 space-y-0.5 relative"
+        onMouseLeave={() => {
+          setHoveredRect(null);
+          setHoveredPath(null);
+        }}
+      >
+        {/* Animated gliding hover pill background */}
+        <div
+          className="absolute left-3 right-3 rounded-xl bg-white/[0.03] border border-white/5 pointer-events-none transition-all"
+          style={{
+            height: hoveredRect ? `${hoveredRect.height}px` : "40px",
+            transform: hoveredRect ? `translateY(${hoveredRect.top}px) scale(1)` : "translateY(0px) scale(0.95)",
+            opacity: hoveredRect ? 1 : 0,
+            transitionProperty: "transform, opacity",
+            transitionDuration: hoveredRect ? "300ms" : "200ms",
+            transitionTimingFunction: hoveredRect ? "cubic-bezier(0.16, 1, 0.3, 1)" : "cubic-bezier(0.25, 1, 0.5, 1)",
+          }}
+        />
+
         {items.map((it) => {
           const active = pathname === it.to || pathname.startsWith(it.to + "/");
+          const isHovered = hoveredPath === it.to;
           const Icon = it.icon;
           return (
             <Link
               key={it.to}
               to={it.to}
               title={collapsed ? it.label : undefined}
+              onMouseEnter={(e) => {
+                const target = e.currentTarget;
+                const parent = target.parentElement;
+                if (parent) {
+                  const targetRect = target.getBoundingClientRect();
+                  const parentRect = parent.getBoundingClientRect();
+                  setHoveredRect({
+                    top: targetRect.top - parentRect.top,
+                    height: targetRect.height,
+                  });
+                  setHoveredPath(it.to);
+                }
+              }}
               className={`relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                active
-                  ? "text-foreground font-semibold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
+                active ? "text-foreground font-semibold" : "text-muted-foreground"
               }`}
             >
               {active && (
@@ -85,8 +118,23 @@ export function AppSidebar() {
                   transition={{ type: "spring", stiffness: 380, damping: 32 }}
                 />
               )}
-              <Icon className="relative h-4 w-4 shrink-0" strokeWidth={1.6} />
-              {!collapsed && <span className="relative truncate">{it.label}</span>}
+              <Icon
+                className={`relative h-4 w-4 shrink-0 transition-all duration-300 ${
+                  active || isHovered
+                    ? "text-foreground scale-105 translate-x-0.5"
+                    : "text-muted-foreground"
+                }`}
+                strokeWidth={1.6}
+              />
+              {!collapsed && (
+                <span
+                  className={`relative truncate transition-colors duration-300 ${
+                    active || isHovered ? "text-foreground font-medium" : "text-muted-foreground"
+                  }`}
+                >
+                  {it.label}
+                </span>
+              )}
             </Link>
           );
         })}

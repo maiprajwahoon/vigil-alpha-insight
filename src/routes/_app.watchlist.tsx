@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Plus, Star } from "lucide-react";
 import { SectionHeading } from "@/components/Primitives";
 import { useScanResults } from "@/hooks/use-scanner";
-import { getWatchlist, setWatchlist } from "@/lib/watchlist";
+import { useWatchlist } from "@/hooks/use-watchlist";
 import { RealtimePriceCell } from "@/hooks/use-realtime-price";
 
 export const Route = createFileRoute("/_app/watchlist")({
@@ -71,7 +71,7 @@ function getDeterministicSparkline(ticker: string, changePct: number): number[] 
 
 function Watchlist() {
   const navigate = useNavigate();
-  const [watchlist, setWatchlistState] = useState<string[]>(() => getWatchlist());
+  const { watchlist, toggleWatchlist, loading } = useWatchlist();
   const { data } = useScanResults({});
 
   const items = useMemo(() => {
@@ -82,9 +82,7 @@ function Watchlist() {
   }, [watchlist, data?.stocks]);
 
   const remove = (ticker: string) => {
-    const next = watchlist.filter((t) => t !== ticker.toUpperCase());
-    setWatchlist(next);
-    setWatchlistState(next);
+    toggleWatchlist(ticker);
   };
 
   const empty = items.length === 0;
@@ -94,8 +92,8 @@ function Watchlist() {
       {/* Header Title Section */}
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Watchlist</p>
-          <h1 className="font-display mt-2 text-4xl">Companies you're following</h1>
+          <p className="text-label-mono text-muted-foreground/85">Watchlist</p>
+          <h1 className="text-hero mt-2 text-3.5xl md:text-4xl">Companies you're following</h1>
         </div>
         <Link
           to="/scanner"
@@ -118,7 +116,7 @@ function Watchlist() {
           
           <div className="flex flex-col mt-4">
             {/* Header */}
-            <div className="hidden sm:grid grid-cols-[1.5fr_1fr_1fr_1.6fr_1.6fr_0.4fr] gap-4 items-center px-4 py-3 text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-bold border-b border-white/5">
+            <div className="hidden sm:grid grid-cols-[1.5fr_1fr_1fr_1.6fr_1.6fr_0.4fr] gap-4 items-center px-4 py-3 text-label-mono text-muted-foreground font-bold border-b border-white/5">
               <div>Asset / Sector</div>
               <div className="text-right">Price Trend</div>
               <div className="text-right">Price Today</div>
@@ -133,7 +131,7 @@ function Watchlist() {
                 <div
                   key={s.ticker}
                   onClick={() => navigate({ to: "/stock/$ticker", params: { ticker: s.ticker } })}
-                  className="grid grid-cols-[minmax(0,1.5fr)_auto] sm:grid-cols-[1.5fr_1fr_1fr_1.6fr_1.6fr_0.4fr] gap-4 items-center px-4 py-4 hover:bg-white/[0.015] active:bg-white/[0.03] transition-all duration-300 relative group overflow-hidden first:rounded-t-xl last:rounded-b-xl border border-transparent hover:border-white/5 cursor-pointer"
+                  className="grid grid-cols-[minmax(0,1.5fr)_auto] sm:grid-cols-[1.5fr_1fr_1fr_1.6fr_1.6fr_0.4fr] gap-4 items-center px-4 py-4 premium-row-hover hover:bg-white/[0.02] hover:shadow-inner hover:shadow-black/25 active:bg-white/[0.04] relative group overflow-hidden first:rounded-t-xl last:rounded-b-xl border border-transparent hover:border-white/10 cursor-pointer"
                 >
                   {/* Column 1: Asset / Sector */}
                   <div className="flex items-center gap-3 min-w-0">
@@ -162,10 +160,10 @@ function Watchlist() {
 
                   {/* Column 3: Price Today */}
                   <div className="text-right">
-                    <div className="font-mono text-sm font-bold text-foreground">
+                    <div className="font-mono font-tabular-nums text-sm font-bold text-foreground">
                       <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} />
                     </div>
-                    <div className={`inline-flex items-center gap-0.5 text-[11px] font-bold mt-1 ${s.changePct >= 0 ? "text-bull" : "text-bear"}`}>
+                    <div className={`inline-flex items-center gap-0.5 text-[11px] font-bold mt-1 font-tabular-nums ${s.changePct >= 0 ? "text-bull" : "text-bear"}`}>
                       {s.changePct >= 0 ? "▲" : "▼"} {Math.abs(s.changePct).toFixed(2)}%
                     </div>
                   </div>

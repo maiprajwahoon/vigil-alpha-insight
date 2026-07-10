@@ -277,25 +277,15 @@ export function OverviewDashboard({ stock, chart }: OverviewDashboardProps) {
                 <span className="text-[10px] text-muted-foreground block uppercase tracking-wider">Intrinsic Value</span>
                 <span className="font-mono text-base font-bold text-foreground mt-1 block">₹{data.targets.intrinsicVal}</span>
               </div>
-              <div className="rounded-xl border border-white/5 bg-white/[0.01] p-3.5">
-                <span className="text-[10px] text-muted-foreground block uppercase tracking-wider">Analyst Target</span>
-                <span className="font-mono text-base font-bold text-foreground mt-1 block">₹{data.targets.analystTarget}</span>
-              </div>
-              <div className="rounded-xl border border-white/5 bg-white/[0.01] p-3.5">
-                <span className="text-[10px] text-muted-foreground block uppercase tracking-wider">Recommended Stop Loss</span>
-                <span className="font-mono text-base font-bold text-rose-400 mt-1 block">₹{data.targets.stopLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <div className="rounded-xl border border-white/5 bg-white/[0.01] p-3.5 col-span-2">
+                <span className="text-[10px] text-muted-foreground block uppercase tracking-wider">Analyst Target Price</span>
+                <span className="font-mono text-base font-bold text-amber-400 mt-1 block">₹{data.targets.analystTarget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Estimated Upside</span>
-                <span className="font-mono text-sm font-bold text-emerald-400 mt-0.5 block">+{data.targets.upside}%</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Estimated Downside</span>
-                <span className="font-mono text-sm font-bold text-rose-400 mt-0.5 block">-{data.targets.downside}%</span>
-              </div>
+            <div className="mt-4 pt-2">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Estimated Upside</span>
+              <span className="font-mono text-sm font-bold text-emerald-400 mt-0.5 block">+{data.targets.upside}%</span>
             </div>
           </div>
 

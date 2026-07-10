@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
+import { SmoothScroll } from "@/components/SmoothScroll";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -107,7 +108,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
+        <SmoothScroll>
+          <Outlet />
+        </SmoothScroll>
       </AuthProvider>
     </QueryClientProvider>
   );

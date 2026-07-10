@@ -258,7 +258,7 @@ export function compileDashboardData(stock: StockDetail, chart: ChartData | null
   const intrinsicVal = Math.round(cmp * (Math.max(15, Math.min(50, stock.epsGrowth * 1.25)) / Math.max(10, stock.pe)));
   const fairVal = Math.round((cmp + intrinsicVal) / 2);
   const analystTarget = Math.round(cmp * (1.1 + (100 - stock.valuation) / 750));
-  const stopLoss = Math.round(pivot * 0.93);
+  const stopLoss = Math.round(Math.min(cmp, pivot) * 0.93);
 
   // Narrative summary assembler
   const stageDesc = priceAbove200EMA && emaAlignment ? "Stage 2 uptrend" : "Stage 1 base consolidation";
