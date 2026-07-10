@@ -7,6 +7,7 @@ import { RealtimePriceCell } from "@/hooks/use-realtime-price";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAlerts } from "@/hooks/use-alerts";
 import { StockLogo } from "@/components/StockLogo";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 
 export const Route = createFileRoute("/_app/alerts")({
   head: () => ({ meta: [{ title: "Alerts — LynchMark" }] }),
