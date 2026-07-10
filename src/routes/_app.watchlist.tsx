@@ -5,6 +5,7 @@ import { SectionHeading } from "@/components/Primitives";
 import { useScanResults } from "@/hooks/use-scanner";
 import { useWatchlist } from "@/hooks/use-watchlist";
 import { StockLogo } from "@/components/StockLogo";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 import { RealtimePriceCell } from "@/hooks/use-realtime-price";
 
 export const Route = createFileRoute("/_app/watchlist")({
@@ -150,8 +151,8 @@ function Watchlist() {
                           {s.sector}
                         </span>
                       </div>
-                      <div className="text-xs text-muted-foreground truncate max-w-[200px] mt-1.5">
-                        {s.company}
+                      <div className="text-xs text-muted-foreground truncate max-w-[200px] mt-1.5" title={CompanyMetadataService.getOfficialName(s.ticker, s.company)}>
+                        {CompanyMetadataService.getOfficialName(s.ticker, s.company)}
                       </div>
                     </div>
                   </div>

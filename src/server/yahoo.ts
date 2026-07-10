@@ -376,9 +376,17 @@ export async function analyzeTicker(entry: UniverseEntry): Promise<Stock | null>
       vcp.analysis.volumeDryUpRatio <= 0.6 &&
       vcp.analysis.contractionCount > 0;
 
+    let officialCompanyName = quote.name || entry.company;
+    try {
+      const { CompanyMetadataService } = await import("@/lib/stock-resolver");
+      officialCompanyName = CompanyMetadataService.getOfficialName(entry.ticker, officialCompanyName);
+    } catch (e) {
+      console.warn("Failed to import CompanyMetadataService in analyzeTicker:", e);
+    }
+
     return {
       ticker: entry.ticker,
-      company: quote.name || entry.company,
+      company: officialCompanyName,
       sector: fundamentals.sector || entry.sector,
       industry: fundamentals.industry || entry.sector,
       cmp: quote.price,

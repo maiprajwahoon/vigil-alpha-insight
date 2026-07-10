@@ -13,6 +13,7 @@ import { useWatchlist } from "@/hooks/use-watchlist";
 import { StockLogo } from "@/components/StockLogo";
 import { useAlerts } from "@/hooks/use-alerts";
 import { useShare } from "@/hooks/use-share";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -176,9 +177,10 @@ function StockPage() {
 
   const handleShare = () => {
     if (typeof window === "undefined") return;
+    const officialName = CompanyMetadataService.getOfficialName(stock.ticker, stock.company);
     share({
-      title: `${stock.company} (${stock.ticker}) — LynchMark`,
-      text: `Analyze ${stock.company} breakout signals and technical patterns on LynchMark.`,
+      title: `${officialName} (${stock.ticker}) — LynchMark`,
+      text: `Analyze ${officialName} breakout signals and technical patterns on LynchMark.`,
       url: window.location.href,
     });
   };
@@ -199,7 +201,9 @@ function StockPage() {
                 <span>·</span>
                 <span>{stock.sector}</span>
               </div>
-              <h1 className="text-section-heading mt-1.5 truncate text-3.5xl md:text-4xl">{stock.company}</h1>
+              <h1 className="text-section-heading mt-1.5 truncate text-3.5xl md:text-4xl" title={CompanyMetadataService.getOfficialName(stock.ticker, stock.company)}>
+                {CompanyMetadataService.getOfficialName(stock.ticker, stock.company)}
+              </h1>
               <div className="mt-3.5 flex flex-wrap items-end gap-4">
                 <span className={`font-display font-tabular-nums text-3xl ${flashClass}`}>
                   ₹{tickingPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

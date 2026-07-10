@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { SectionHeading, StatusChip } from "@/components/Primitives";
+import { StockLogo } from "@/components/StockLogo";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 import { useScanResults } from "@/hooks/use-scanner";
 
 export const Route = createFileRoute("/_app/explorer")({
@@ -56,9 +58,14 @@ function Explorer() {
               className="glass-card group p-5 transition hover:-translate-y-0.5"
             >
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-mono text-[11px] text-muted-foreground">{s.ticker}</div>
-                  <div className="mt-0.5 text-sm">{s.company}</div>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <StockLogo ticker={s.ticker} size={28} className="rounded-lg shrink-0" />
+                  <div className="min-w-0">
+                    <div className="font-mono text-[11px] text-muted-foreground">{s.ticker}</div>
+                    <div className="mt-0.5 text-sm truncate font-medium text-foreground/95" title={CompanyMetadataService.getOfficialName(s.ticker, s.company)}>
+                      {CompanyMetadataService.getOfficialName(s.ticker, s.company)}
+                    </div>
+                  </div>
                 </div>
                 <StatusChip status={s.status} />
               </div>

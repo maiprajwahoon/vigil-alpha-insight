@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight, Loader2, ShieldCheck, TrendingUp, Zap } from "lucide-react";
 import { StatCard, SectionHeading, StatusChip, ScoreBar } from "@/components/Primitives";
 import { StockLogo } from "@/components/StockLogo";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 import { ALERTS } from "@/lib/mock-data";
 import { motion } from "@/lib/motion-shim";
 import { useMarketOverview, useScanResults } from "@/hooks/use-scanner";
@@ -334,8 +335,8 @@ function Dashboard() {
                           {s.sector}
                         </span>
                       </div>
-                      <div className="text-xs text-foreground/80 truncate max-w-[200px] mt-1.5">
-                        {s.company}
+                      <div className="text-xs text-foreground/80 truncate max-w-[200px] mt-1.5" title={CompanyMetadataService.getOfficialName(s.ticker, s.company)}>
+                        {CompanyMetadataService.getOfficialName(s.ticker, s.company)}
                       </div>
                     </div>
                   </div>
@@ -418,9 +419,11 @@ function Dashboard() {
             )}
             {breakouts.map((s) => (
               <li key={s.ticker} className="flex items-center gap-4">
-                <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-white/[0.04] font-mono text-[10px] leading-none">{s.ticker.length > 5 ? s.ticker.slice(0, 4) : s.ticker}</div>
+                <StockLogo ticker={s.ticker} size={40} className="rounded-xl shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm text-foreground/95 font-medium">{s.company}</div>
+                  <div className="truncate text-sm text-foreground/95 font-medium" title={CompanyMetadataService.getOfficialName(s.ticker, s.company)}>
+                    {CompanyMetadataService.getOfficialName(s.ticker, s.company)}
+                  </div>
                   <div className="text-xs text-foreground/75">{s.sector}</div>
                 </div>
                 <div className="text-right">
@@ -442,7 +445,7 @@ function Dashboard() {
             {top.slice(0, 5).map((s, i) => (
               <li key={s.ticker} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-white/[0.015] px-4 py-3">
                 <div>
-                  <div className="text-sm text-foreground/95 font-medium">{s.company}</div>
+                  <div className="text-sm text-foreground/95 font-medium" title={CompanyMetadataService.getOfficialName(s.ticker, s.company)}>{CompanyMetadataService.getOfficialName(s.ticker, s.company)}</div>
                   <div className="text-xs text-foreground/75">{s.sector}</div>
                 </div>
                 <div className="text-right">
@@ -496,7 +499,9 @@ function Dashboard() {
                       <td className="font-mono text-xs font-semibold text-foreground group-hover:underline underline-offset-4">
                         {x.ticker}
                       </td>
-                      <td className="text-foreground/85 truncate max-w-[180px]">{x.company}</td>
+                      <td className="text-foreground/85 truncate max-w-[180px]" title={CompanyMetadataService.getOfficialName(x.ticker, x.company)}>
+                        {CompanyMetadataService.getOfficialName(x.ticker, x.company)}
+                      </td>
                       <td className="text-right font-mono">
                         <RealtimePriceCell ticker={x.ticker} basePrice={x.cmp} baseChangePct={x.changePct} />
                         <div className={`text-[10px] ${x.changePct >= 0 ? "text-bull" : "text-bear"}`}>

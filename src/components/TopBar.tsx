@@ -5,6 +5,7 @@ import { useSearchStocks } from "@/hooks/use-scanner";
 import { getWatchlist } from "@/lib/watchlist";
 import { useAuth } from "@/hooks/use-auth";
 import { StockLogo } from "@/components/StockLogo";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 
 export function TopBar() {
   const { user, signOut } = useAuth();
@@ -368,8 +369,8 @@ function SearchSuggestionRow({
             {item.sector}
           </span>
         </div>
-        <div className="text-xs text-muted-foreground/85 truncate max-w-xs sm:max-w-md mt-0.5">
-          <HighlightText text={item.company} query={query} />
+        <div className="text-xs text-muted-foreground/85 truncate max-w-xs sm:max-w-md mt-0.5" title={CompanyMetadataService.getOfficialName(item.ticker, item.company)}>
+          <HighlightText text={CompanyMetadataService.getOfficialName(item.ticker, item.company)} query={query} />
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { LogoService } from "@/lib/stock-resolver";
 
 interface StockLogoProps {
   ticker: string;
@@ -12,7 +13,7 @@ export function StockLogo({ ticker, className = "", size = 32 }: StockLogoProps)
 
   // Clean ticker symbol (strip exchange suffixes)
   const baseTicker = ticker.replace(/\.NS$|\.BO$/i, "").toUpperCase();
-  const logoUrl = `https://images.financialmodelingprep.com/symbol/${baseTicker}.png`;
+  const logoUrl = LogoService.getLogoUrl(baseTicker);
 
   // Get initials fallback (e.g. RELIANCE -> RE, TCS -> TC)
   const getInitials = () => {
@@ -29,7 +30,7 @@ export function StockLogo({ ticker, className = "", size = 32 }: StockLogoProps)
     return `hsl(${h}, 60%, 25%)`;
   };
 
-  if (error || !baseTicker) {
+  if (error || !baseTicker || !logoUrl) {
     return (
       <div
         className={`${className} flex items-center justify-center font-mono text-[10px] font-bold text-white shadow-inner uppercase select-none`}

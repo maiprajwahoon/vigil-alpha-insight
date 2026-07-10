@@ -23,6 +23,7 @@ import type { Stock } from "@/lib/types/stock";
 import { useScanResults } from "@/hooks/use-scanner";
 import { RealtimePriceCell } from "@/hooks/use-realtime-price";
 import { StockLogo } from "@/components/StockLogo";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_app/scanner")({
@@ -1179,7 +1180,9 @@ function Scanner() {
                             </div>
                           </td>
                           {/* Company */}
-                          <td className="text-foreground/85 truncate max-w-[160px] font-medium">{s.company}</td>
+                          <td className="text-foreground/85 truncate max-w-[160px] font-medium" title={CompanyMetadataService.getOfficialName(s.ticker, s.company)}>
+                            {CompanyMetadataService.getOfficialName(s.ticker, s.company)}
+                          </td>
                           {/* Price */}
                           <td className="text-right font-mono font-tabular-nums" onClick={(e) => e.stopPropagation()}>
                             <RealtimePriceCell ticker={s.ticker} basePrice={s.cmp} baseChangePct={s.changePct} />

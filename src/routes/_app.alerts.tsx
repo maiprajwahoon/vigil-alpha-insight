@@ -296,7 +296,9 @@ function Alerts() {
                       <td className="font-mono text-xs font-semibold text-foreground group-hover:underline underline-offset-4">
                         {x.ticker}
                       </td>
-                      <td className="text-foreground/85 truncate max-w-[180px]">{x.company}</td>
+                      <td className="text-foreground/85 truncate max-w-[180px]" title={CompanyMetadataService.getOfficialName(x.ticker, x.company)}>
+                        {CompanyMetadataService.getOfficialName(x.ticker, x.company)}
+                      </td>
                       <td className="text-right font-mono">
                         <RealtimePriceCell ticker={x.ticker} basePrice={x.cmp} baseChangePct={x.changePct} />
                         <div className={`text-[10px] ${x.changePct >= 0 ? "text-bull" : "text-bear"}`}>

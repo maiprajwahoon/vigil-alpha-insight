@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SectionHeading, ScoreBar, StatusChip } from "@/components/Primitives";
 import { StockLogo } from "@/components/StockLogo";
+import { CompanyMetadataService } from "@/lib/stock-resolver";
 import { useMarketOverview, useScanResults } from "@/hooks/use-scanner";
 import { useRealtimePrice, RealtimePriceCell } from "@/hooks/use-realtime-price";
 import { Loader2 } from "lucide-react";
@@ -213,8 +214,8 @@ function Market() {
                         <span className="font-mono text-xs font-bold text-foreground group-hover:text-[#3b82f6] transition-colors leading-none block">
                           {s.ticker}
                         </span>
-                        <span className="text-[10px] text-muted-foreground truncate max-w-[120px] sm:max-w-[150px] mt-1 block">
-                          {s.company}
+                        <span className="text-[10px] text-muted-foreground truncate max-w-[120px] sm:max-w-[150px] mt-1 block" title={CompanyMetadataService.getOfficialName(s.ticker, s.company)}>
+                          {CompanyMetadataService.getOfficialName(s.ticker, s.company)}
                         </span>
                       </div>
 
@@ -277,7 +278,9 @@ function Market() {
                       <td className="font-mono text-xs font-semibold text-foreground group-hover:underline underline-offset-4">
                         {x.ticker}
                       </td>
-                      <td className="text-foreground/85 truncate max-w-[180px]">{x.company}</td>
+                      <td className="text-foreground/85 truncate max-w-[180px]" title={CompanyMetadataService.getOfficialName(x.ticker, x.company)}>
+                        {CompanyMetadataService.getOfficialName(x.ticker, x.company)}
+                      </td>
                       <td className="text-right font-mono">
                         <RealtimePriceCell ticker={x.ticker} basePrice={x.cmp} baseChangePct={x.changePct} />
                         <div className={`text-[10px] ${x.changePct >= 0 ? "text-bull" : "text-bear"}`}>
