@@ -80,11 +80,65 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
 
     document.addEventListener("click", handleAnchorClick);
 
+    // Global scroll lock interceptor for modals, dialogs, dropdowns and overflow elements
+    let startScrollTimeout: NodeJS.Timeout | null = null;
+    
+    const handleGlobalScrollIntercept = (e: WheelEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target) return;
+      
+      let el: HTMLElement | null = target;
+      let isScrollable = false;
+      
+      while (el && el !== document.body && el !== document.documentElement) {
+        // Respect explicitly marked prevent elements
+        if (el.hasAttribute("data-lenis-prevent")) {
+          isScrollable = true;
+          break;
+        }
+
+        const style = window.getComputedStyle(el);
+        const overflowY = style.overflowY;
+        const isOverflow = overflowY === "auto" || overflowY === "scroll";
+        if (isOverflow && el.scrollHeight > el.clientHeight) {
+          isScrollable = true;
+          break;
+        }
+        
+        const role = el.getAttribute("role");
+        if (
+          role === "dialog" || 
+          role === "menu" || 
+          role === "listbox" || 
+          el.classList.contains("DialogContent")
+        ) {
+          isScrollable = true;
+          break;
+        }
+        
+        el = el.parentElement;
+      }
+      
+      if (isScrollable) {
+        lenis.stop();
+        if (startScrollTimeout) clearTimeout(startScrollTimeout);
+        startScrollTimeout = setTimeout(() => {
+          lenis.start();
+        }, 150);
+      }
+    };
+
+    window.addEventListener("wheel", handleGlobalScrollIntercept, { capture: true, passive: true });
+    window.addEventListener("touchmove", handleGlobalScrollIntercept, { capture: true, passive: true });
+
     // Cleanup scroll container configurations and event listeners
     return () => {
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
       document.removeEventListener("click", handleAnchorClick);
+      window.removeEventListener("wheel", handleGlobalScrollIntercept, { capture: true });
+      window.removeEventListener("touchmove", handleGlobalScrollIntercept, { capture: true });
+      if (startScrollTimeout) clearTimeout(startScrollTimeout);
       lenis.destroy();
       lenisRef.current = null;
     };
