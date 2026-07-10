@@ -48,18 +48,31 @@ export function AppSidebar() {
         collapsed ? "w-16" : "w-60"
       }`}
     >
-      <div className="flex items-center justify-between px-4 pt-6 pb-8">
-        <Link to="/" className="flex items-center gap-2.5 min-w-0">
-          <img
-            src="/logo.jpg"
-            alt="LynchMark"
-            className="h-8 w-8 rounded-lg object-cover shrink-0 select-none"
-          />
-          {!collapsed && <div className="font-display text-xl tracking-tight text-foreground/95 truncate">LynchMark</div>}
-        </Link>
+      <div className="flex items-center justify-between px-4 pt-6 pb-8 overflow-hidden min-h-[56px] relative">
+        <div
+          className="flex items-center gap-2.5 min-w-0 transition-all duration-300 ease-in-out origin-left"
+          style={{
+            opacity: collapsed ? 0 : 1,
+            maxWidth: collapsed ? "0px" : "150px",
+            transform: collapsed ? "scale(0.8) translateX(-10px)" : "scale(1) translateX(0)",
+            pointerEvents: collapsed ? "none" : "auto",
+          }}
+        >
+          <Link to="/" className="flex items-center gap-2.5 min-w-0">
+            <img
+              src="/logo.jpg"
+              alt="LynchMark"
+              className="h-8 w-8 rounded-lg object-cover shrink-0 select-none"
+            />
+            <span className="font-display text-xl tracking-tight text-foreground/95 truncate">LynchMark</span>
+          </Link>
+        </div>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-lg border border-white/5 hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          className="p-1.5 rounded-lg border border-white/5 hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all duration-300 shrink-0"
+          style={{
+            transform: collapsed ? "translateX(-1px)" : "translateX(0)",
+          }}
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
